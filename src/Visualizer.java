@@ -1,11 +1,14 @@
+import javax.swing.JFrame;
 import java.util.Scanner;
 
 public class Visualizer implements Runnable {
+    private JFrame jFrame;
     private Engine fishtank;
     private Thread engineThread;
 
     public Visualizer() {
         //Set up the fishtank
+        jFrame = new JFrame("Fish Tank");
         fishtank = new Engine();
         engineThread = new Thread(fishtank);
     }
@@ -17,6 +20,8 @@ public class Visualizer implements Runnable {
 
     public void run() {
         //Set up visualization window
+        jFrame.setVisible(true);
+        jFrame.setSize(512, 512);
 
         //Start the engine
         engineThread.start();
