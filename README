@@ -1,1 +1,3 @@
 Purdue SigART's AI fishtank simulator.
+
+Compilation: from src call make
