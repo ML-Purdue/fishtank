@@ -28,7 +28,7 @@ public class Visualizer extends JFrame implements Runnable {
         fishtank = new Engine();
         engineThread = new Thread(fishtank);
         try {
-			fishImage = ImageIO.read(new File("/homes/cwendt/workspace/test/fish.png"));
+			fishImage = ImageIO.read(new File("fish.png"));
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.exit(0);
