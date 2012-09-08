@@ -1,20 +1,31 @@
 public class Fish {
-    private int rudderDirection;
-    private int speed;
+    private double rudderDirection;
+    private double speed;
+    public int radius;
+    
+    public Fish() {
+    	radius = 10;
+    }
+    
+    public Fish(double rudderDirection, double speed, int radius) {
+    	this.rudderDirection = rudderDirection;
+    	this.speed = speed;
+    	this.radius = radius;
+    }
 
-    public int getRudderDirection() {
+    public double getRudderDirection() {
         return rudderDirection;
     }
 
-    public int getSpeed() {
+    public double getSpeed() {
         return speed;
     } 
 
-    public void setRudderDirection(int direction) {
+    public void setRudderDirection(double direction) {
         rudderDirection = direction;
     } 
 
-    public void setSpeed(int speed) {
+    public void setSpeed(double speed) {
         this.speed = speed;
     } 
 }
