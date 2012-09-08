@@ -22,6 +22,7 @@ public class Visualizer implements Runnable {
         //Set up visualization window
         jFrame.setVisible(true);
         jFrame.setSize(512, 512);
+        jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         //Start the engine
         engineThread.start();
