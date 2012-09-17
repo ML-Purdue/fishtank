@@ -1,3 +1,4 @@
+package environment;
 public class Fish {
     private double rudderDirection;
     private double speed;
@@ -21,12 +22,24 @@ public class Fish {
         return speed;
     } 
 
-    public void setRudderDirection(double direction) {
+    public FishCode setRudderDirection(double direction) {
         rudderDirection = direction;
+        return FishCode.OK;
     } 
 
-    public void setSpeed(double speed) {
+    public FishCode setSpeed(double speed) {
         this.speed = speed;
+        return FishCode.OK;
     } 
+    
+    public FishCode reproduce() {
+    	//TODO
+    	return FishCode.OK;
+    }
+    
+    public FishCode eat() {
+    	//TODO
+    	return FishCode.OK;
+    }
 }
 

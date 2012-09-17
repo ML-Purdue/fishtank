@@ -1,3 +1,4 @@
+package graphics;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -9,6 +10,12 @@ import java.util.Scanner;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
+
+import environment.Engine;
+import environment.Fish;
+import environment.FishLocation;
+import environment.State;
+import environment.Vector;
 
 public class Visualizer extends JFrame implements Runnable {
     private BufferedImage buffer;

@@ -1,3 +1,5 @@
+package environment;
+
 public class FishLocation {
     public Fish fish;
     public Vector position;
