@@ -57,9 +57,11 @@ public class Visualizer extends JFrame implements Runnable {
         engineThread.start();
 
         //Repeatedly display the simulation
+        long nextState = 0;
         while(engineThread.isAlive()) {
-            state = fishtank.getState();
+            state = fishtank.getState(nextState);
             repaint();
+            nextState = state.seqID;
         }
     }
 

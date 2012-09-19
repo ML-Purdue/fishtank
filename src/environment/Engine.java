@@ -11,8 +11,12 @@ public class Engine implements Runnable {
         //Add initial fish to the simulation
     }
 
-    public State getState() {
+    public State getState(long ID) {
         State rtn = null;
+
+        //Busy-wait until a new state is available
+        while(frontState.seqID <= ID){
+        }
 
         synchronized(stateLock) {
             rtn = frontState;
