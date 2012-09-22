@@ -13,7 +13,6 @@ import javax.swing.JFrame;
 
 import environment.Engine;
 import environment.Fish;
-import environment.FishLocation;
 import environment.State;
 import environment.Vector;
 
@@ -24,7 +23,6 @@ public class Visualizer extends JFrame implements Runnable {
     private Thread engineThread;
     private State state;
     private int width = 512, height = 512;
-    private FishLocation tmpFishLoc = new FishLocation(new Fish(), new Vector(50, 50));
     private BufferedImage fishImage;
 
     public Visualizer() {
@@ -70,6 +68,7 @@ public class Visualizer extends JFrame implements Runnable {
         bufferGraphics.fillRect(0, 0, buffer.getWidth(), buffer.getHeight());
    
         //Draw the fish
+        /*
         tmpFishLoc.position.x += Math.cos(tmpFishLoc.fish.getRudderDirection()) * 0.1;
         tmpFishLoc.position.x %= buffer.getWidth();
         tmpFishLoc.position.y += Math.sin(tmpFishLoc.fish.getRudderDirection()) * 0.1;
@@ -84,6 +83,7 @@ public class Visualizer extends JFrame implements Runnable {
         int centerY = (int)tmpFishLoc.position.y + tmpFishLoc.fish.radius;
         int rudderX = (int)(centerX + -2 * tmpFishLoc.fish.radius * Math.cos(tmpFishLoc.fish.getRudderDirection()));
         int rudderY = (int)(centerY + -2 * tmpFishLoc.fish.radius * Math.sin(tmpFishLoc.fish.getRudderDirection()));
+        
         //bufferGraphics.drawLine(centerX, centerY, rudderX, rudderY);
         bufferGraphics.rotate(tmpFishLoc.fish.getRudderDirection(), centerX, centerY);
         bufferGraphics.drawImage(fishImage, (int)tmpFishLoc.position.x, (int)tmpFishLoc.position.y, null);

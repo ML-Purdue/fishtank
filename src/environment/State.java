@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class State {
     public long seqID;
-    public ArrayList<FishLocation> fishLocs;
+    public ArrayList<Fish> fishList;
 
     public double xDim;
     public double yDim;
@@ -12,7 +12,7 @@ public class State {
     public State(long ID) {
         seqID = ID;
 
-        fishLocs = new ArrayList<FishLocation>();
+        fishList = new ArrayList<Fish>();
     }
 }
 

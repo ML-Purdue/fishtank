@@ -1,9 +1,14 @@
-package environment;
+ package environment;
+
+import java.util.ArrayList;
+
+import control.FishAI;
 
 public class Engine implements Runnable {
     private State backState;
     private State frontState;
     private Object stateLock;
+    private ArrayList<FishAI> controllers;
 
     public Engine() {
         frontState = new State(0);
@@ -28,6 +33,17 @@ public class Engine implements Runnable {
     }
 
     private void moveFish() {
+    	for (FishAI ai : controllers) {
+    		for (Fish f : ai.myFish) {
+    			Vector pos = f.getPosition();
+    			Vector dir = f.getRudderVector();
+    			double speed = f.getSpeed();
+    			double x = pos.x + speed * dir.x;
+    			double y = pos.y + speed * dir.y;
+    			f.setPosition(new Vector(x, y));
+    		}
+    	}
+    	/*
         //for demonstration purposes only...
         for(int i = 0; i < frontState.fishLocs.size(); i++){
             FishLocation cur = frontState.fishLocs.get(i);
@@ -41,6 +57,7 @@ public class Engine implements Runnable {
                 backState.fishLocs.add(new FishLocation(cur.fish, new Vector(cur.position.x - 1, cur.position.y - 1)));
             }
         }
+        */
     }
 
     private void collideFish() {

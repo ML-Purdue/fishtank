@@ -1,11 +1,17 @@
 package environment;
 public class Vector {
-    public double x;
-    public double y;
+    public final double x;
+    public final double y;
 
     public Vector(double x, double y) {
         this.x = x;
         this.y = y;
+    }
+    
+    public Vector normalize() {
+    	double len = x * x + y * y;
+    	len = Math.sqrt(len);
+    	return new Vector(x/len, y/len);
     }
 }
 
