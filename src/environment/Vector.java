@@ -1,4 +1,9 @@
 package environment;
+
+/*
+ * Note that vectors are immutable - if you want to change it, you'll need to
+ * create an entirely new vector
+ */
 public class Vector {
     public final double x;
     public final double y;

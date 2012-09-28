@@ -10,6 +10,7 @@ public abstract class FishAI implements Runnable {
     
     public FishAI (Engine engine) {
     	this.engine = engine;
+    	this.myFish = new ArrayList<Fish>();
     }
 }
 

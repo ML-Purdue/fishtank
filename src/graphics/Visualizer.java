@@ -19,10 +19,10 @@ import environment.Vector;
 public class Visualizer extends JFrame implements Runnable {
     private BufferedImage buffer;
     private Graphics2D bufferGraphics;
-    private Engine fishtank;
+    private static Engine fishtank;
     private Thread engineThread;
     private State state;
-    private int width = 512, height = 512;
+    private int width = 512, height = 512;  // XXX this should not be defined here
     private BufferedImage fishImage;
 
     public Visualizer() {
@@ -119,6 +119,8 @@ public class Visualizer extends JFrame implements Runnable {
             String input = in.nextLine();
             if(input.equals("exit")) {
                 System.exit(0);
+            } else if (input.equals("spawn")) {
+            	fishtank.add();
             }
         }
     }
