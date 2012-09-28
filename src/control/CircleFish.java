@@ -12,6 +12,7 @@ public class CircleFish extends FishAI {
 
 	public CircleFish(Engine engine) {
 		super(engine);
+		centers = new HashMap<Fish, Vector>();
 	}
 
 	@Override
@@ -22,7 +23,9 @@ public class CircleFish extends FishAI {
 		boolean up = true;
 		while(true) {  // TODO end condition
 			prev = current;
+			System.out.println("Waiting for next state");
 			current = engine.getState(prev.seqID);
+			System.out.println("Got next state");
 			
 			for (Fish f : myFish) {
 				Vector center = centers.get(f);

@@ -60,26 +60,11 @@ public class Engine implements Runnable {
 	    			if (y > rules.y_width || y < 0) {
 	    				y = pos.y;
 	    			}
-	    			System.out.println("Moving fish " + f.id + " to " + x + ", " + y);
+	    			//System.out.println("Moving fish " + f.id + " to " + x + ", " + y);
 	    			f.setPosition(x, y);
 	    		}
 	    	}
     	}
-    	/*
-        //for demonstration purposes only...
-        for(int i = 0; i < frontState.fishLocs.size(); i++){
-            FishLocation cur = frontState.fishLocs.get(i);
-            if(cur.fish.getRudderDirection() > 1) {
-                backState.fishLocs.add(new FishLocation(cur.fish, new Vector(cur.position.x + 1, cur.position.y + 1)));
-            } else if(cur.fish.getRudderDirection() > 0) {
-                backState.fishLocs.add(new FishLocation(cur.fish, new Vector(cur.position.x + 1, cur.position.y - 1)));
-            } else if(cur.fish.getRudderDirection() > -1) {
-                backState.fishLocs.add(new FishLocation(cur.fish, new Vector(cur.position.x - 1, cur.position.y + 1)));
-            } else {
-                backState.fishLocs.add(new FishLocation(cur.fish, new Vector(cur.position.x - 1, cur.position.y - 1)));
-            }
-        }
-        */
     }
 
     private void collideFish() {
@@ -94,6 +79,8 @@ public class Engine implements Runnable {
 	    	if (controllers.isEmpty()) {
 	    		FishAI ai = new CircleFish(this);
 	    		controllers.add(ai);
+	    		Thread ai_thread = new Thread(ai);
+	    		ai_thread.start();
 	    	}
 	    	FishAI ai = controllers.get(0);
 	    	Fish f = new Fish(rules, 0, 0, 0);
@@ -106,6 +93,12 @@ public class Engine implements Runnable {
     public void run() {
         long numStates = 0;
         while(true) {
+        	//System.out.println("iteration ");
+        	try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
             backState = new State(numStates++);
 
             //Calculate the next state from frontState into the backState
