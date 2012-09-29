@@ -28,6 +28,7 @@ public class Engine implements Runnable {
 
         //Busy-wait until a new state is available
         while(frontState.seqID <= ID){
+        	Thread.yield();
         }
 
         synchronized(stateLock) {
@@ -60,7 +61,7 @@ public class Engine implements Runnable {
 	    			if (y > rules.y_width || y < 0) {
 	    				y = pos.y;
 	    			}
-	    			//System.out.println("Moving fish " + f.id + " to " + x + ", " + y);
+	    			System.out.println("Moving fish " + f.id + " to " + x + ", " + y);
 	    			f.setPosition(x, y);
 	    		}
 	    	}
@@ -93,7 +94,7 @@ public class Engine implements Runnable {
     public void run() {
         long numStates = 0;
         while(true) {
-        	//System.out.println("iteration ");
+        	System.out.println("iteration - state id is " + numStates);
         	try {
 				Thread.sleep(100);
 			} catch (InterruptedException e) {
