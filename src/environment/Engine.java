@@ -8,23 +8,23 @@ import control.FishAI;
 
 public class Engine implements Runnable {
 	public final RuleSet rules;
-    private State backState;
-    private State frontState;
+    private WorldState backState;
+    private WorldState frontState;
     private Object stateLock;
     private ArrayList<FishAI> controllers;
     private Random rng;
 
     public Engine() {
     	this.rules = RuleSet.dflt_rules();
-        frontState = new State(0);
+        frontState = new WorldState(0);
         stateLock = new Object();
         controllers = new ArrayList<FishAI>();
         rng = new Random();
         //Add initial fish to the simulation
     }
 
-    public State getState(long ID) {
-        State rtn = null;
+    public WorldState getState(long ID) {
+        WorldState rtn = null;
 
         //Busy-wait until a new state is available
         while(frontState.seqID <= ID){
@@ -93,6 +93,7 @@ public class Engine implements Runnable {
 
     public void run() {
         long numStates = 0;
+        add();
         while(true) {
         	System.out.println("iteration - state id is " + numStates);
         	try {
@@ -100,7 +101,7 @@ public class Engine implements Runnable {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-            backState = new State(numStates++);
+            backState = new WorldState(numStates++);
 
             //Calculate the next state from frontState into the backState
             moveFish();

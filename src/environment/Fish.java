@@ -1,7 +1,7 @@
 package environment;
 public class Fish {
+	private FishState requested_state;
 	private final RuleSet rules;
-    private Vector position;
     private Vector rudderDirection;  // Will always be normalized
     private double speed;
 	private double nutrients;
@@ -73,10 +73,6 @@ public class Fish {
     }
     
     /* Senses */
-    public Vector getPosition() {
-		return position;
-	}
-
 	public double getNutrients() {
 		return nutrients;
 	}
@@ -102,9 +98,6 @@ public class Fish {
     } 
 	
     /* Engine controls */
-    protected void setPosition(double x, double y) {
-		this.position = new Vector(x, y);
-	}
 
 	protected void setNutrients(double nutrients) {
 		this.nutrients = nutrients;

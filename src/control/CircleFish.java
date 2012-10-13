@@ -3,7 +3,7 @@ package control;
 import java.util.HashMap;
 
 import environment.Engine;
-import environment.State;
+import environment.WorldState;
 import environment.Fish;
 import environment.Vector;
 
@@ -17,8 +17,8 @@ public class CircleFish extends FishAI {
 
 	@Override
 	public void run() {
-		State prev = null;
-		State current = engine.getState(0);
+		WorldState prev = null;
+		WorldState current = engine.getState(0);
 		int speed = 0;
 		boolean up = true;
 		while(true) {  // TODO end condition

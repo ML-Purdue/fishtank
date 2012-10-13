@@ -13,7 +13,7 @@ import javax.swing.JFrame;
 
 import environment.Engine;
 import environment.Fish;
-import environment.State;
+import environment.WorldState;
 import environment.Vector;
 
 public class Visualizer extends JFrame implements Runnable {
@@ -21,7 +21,7 @@ public class Visualizer extends JFrame implements Runnable {
     private Graphics2D bufferGraphics;
     private static Engine fishtank;
     private Thread engineThread;
-    private State state;
+    private WorldState state;
     private int width = 512, height = 512;  // XXX this should not be defined here
     private BufferedImage fishImage;
 
@@ -75,10 +75,13 @@ public class Visualizer extends JFrame implements Runnable {
         if (state == null) {
                 return;
         }
-        for (Fish fish : state.fishList) {
+        System.out.println("Iterating paint, State "+state.seqID);
+        for (Fish fish : state.get_fish()) {
+            Vector pos = state.get_location(fish);
+        	System.out.println("Found a fish!");
             bufferGraphics.setColor(new Color(255, 100, 0));
-            bufferGraphics.fillOval((int)fish.getPosition().x - fish.getRadius(),
-                                    (int)fish.getPosition().y - fish.getRadius(),
+            bufferGraphics.fillOval((int)pos.x - fish.getRadius(),
+                                    (int)pos.y - fish.getRadius(),
                                     2 * fish.getRadius(), 2 * fish.getRadius());
         }
            
