@@ -1,3 +1,4 @@
+package graphics;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -10,14 +11,18 @@ import java.util.Scanner;
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 
+import environment.Engine;
+import environment.Fish;
+import environment.State;
+import environment.Vector;
+
 public class Visualizer extends JFrame implements Runnable {
     private BufferedImage buffer;
     private Graphics2D bufferGraphics;
-    private Engine fishtank;
+    private static Engine fishtank;
     private Thread engineThread;
     private State state;
-    private int width = 512, height = 512;
-    private FishLocation tmpFishLoc = new FishLocation(new Fish(), new Vector(50, 50));
+    private int width = 512, height = 512;  // XXX this should not be defined here
     private BufferedImage fishImage;
 
     public Visualizer() {
@@ -50,9 +55,11 @@ public class Visualizer extends JFrame implements Runnable {
         engineThread.start();
 
         //Repeatedly display the simulation
+        long nextState = 0;
         while(engineThread.isAlive()) {
-            state = fishtank.getState();
+            state = fishtank.getState(nextState);
             repaint();
+            nextState = state.seqID;
         }
     }
 
@@ -97,6 +104,8 @@ public class Visualizer extends JFrame implements Runnable {
             String input = in.nextLine();
             if(input.equals("exit")) {
                 System.exit(0);
+            } else if (input.equals("spawn")) {
+            	fishtank.add();
             }
         }
     }
