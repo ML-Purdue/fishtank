@@ -1,6 +1,6 @@
 package environment;
 public class Fish {
-	private FishState requested_state;
+	protected FishState requested_state;
 	private final RuleSet rules;
     private Vector rudderDirection;  // Will always be normalized
     private double speed;

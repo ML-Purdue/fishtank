@@ -48,21 +48,34 @@ public class Engine implements Runnable {
     	synchronized (controllers) {
 	    	for (FishAI ai : controllers) {
 	    		for (Fish f : ai.myFish) {
-	    			Vector pos = f.getPosition();
-	    			Vector dir = f.getRudderVector();
-	    			double speed = f.getSpeed();
-	    			double x = pos.x + speed * dir.x;
-	    			double y = pos.y + speed * dir.y;
-	
-					// TODO: better collision handling
-	    			if (x > rules.x_width || x < 0) {
-	    				x = pos.x;
+	    			synchronized (f.requested_state) {
+	    				// TODO: synchronize within the Fish class
+		    			FishState old_fs = frontState.get_state(f);
+		    			FishState requested_fs = f.requested_state;
+		    			if (old_fs == null) {
+		    				
+		    			}
+		    			Vector pos = old_fs.getPosition();
+		    			Vector dir = requested_fs.getRudderVector();
+		    			double speed = requested_fs.getSpeed();
+		    			double x = pos.x + speed * dir.x;
+		    			double y = pos.y + speed * dir.y;
+		
+						// TODO: better collision handling
+		    			if (x > rules.x_width || x < 0) {
+		    				x = pos.x;
+		    			}
+		    			if (y > rules.y_width || y < 0) {
+		    				y = pos.y;
+		    			}
+		    			System.out.println("Moving fish " + f.id + " to " + x + ", " + y);
+		    			//TODO
+		    			FishState new_fs = new FishState();
+		    			new_fs.setPosition(new Vector(x, y));
+		    			new_fs.setRudderVector(dir);
+		    			new_fs.setSpeed(speed);
+		    			backState.fish_states.put(f, new_fs);
 	    			}
-	    			if (y > rules.y_width || y < 0) {
-	    				y = pos.y;
-	    			}
-	    			System.out.println("Moving fish " + f.id + " to " + x + ", " + y);
-	    			f.setPosition(x, y);
 	    		}
 	    	}
     	}

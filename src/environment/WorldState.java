@@ -4,23 +4,23 @@ import java.util.Set;
 
 public class WorldState {
     public long seqID;
-    protected java.util.Hashtable<Fish, Vector> fish_locations;
+    protected java.util.Hashtable<Fish, FishState> fish_states;
 
     public double xDim;
     public double yDim;
     
     public Set<Fish> get_fish() {
-    	return fish_locations.keySet();
+    	return fish_states.keySet();
     }
     
-    public Vector get_location(Fish f) {
-    	return fish_locations.get(f);
+    public FishState get_state (Fish f) {
+    	return fish_states.get(f);
     }
 
     public WorldState(long ID) {
         seqID = ID;
 
-        fish_locations = new java.util.Hashtable<Fish, Vector>();
+        fish_states = new java.util.Hashtable<Fish, FishState>();
     }
 }
 
