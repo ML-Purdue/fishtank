@@ -1,6 +1,7 @@
  package environment;
 
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.Random;
 
 import control.CircleFish;
@@ -13,6 +14,7 @@ public class Engine implements Runnable {
     private Object stateLock;
     private ArrayList<FishAI> controllers;
     private Random rng;
+    private Hashtable <FishState, FishAI> newFish;
 
     public Engine() {
     	this.rules = RuleSet.dflt_rules();
@@ -20,6 +22,7 @@ public class Engine implements Runnable {
         stateLock = new Object();
         controllers = new ArrayList<FishAI>();
         rng = new Random();
+        newFish = new Hashtable<FishState, FishAI>();
         //Add initial fish to the simulation
     }
 
@@ -49,14 +52,15 @@ public class Engine implements Runnable {
 	    	for (FishAI ai : controllers) {
 	    		for (Fish f : ai.myFish) {
 	    			synchronized (f.requested_state) {
-	    				// TODO: synchronize within the Fish class
 		    			FishState old_fs = frontState.get_state(f);
 		    			FishState requested_fs = f.requested_state;
-		    			if (old_fs == null) {
-		    				
-		    			}
 		    			Vector pos = old_fs.getPosition();
 		    			Vector dir = requested_fs.getRudderVector();
+		    			
+		    			if (old_fs == null || requested_fs == null) {
+		    				System.err.println("Oh noes!");
+		    			}
+		    			
 		    			double speed = requested_fs.getSpeed();
 		    			double x = pos.x + speed * dir.x;
 		    			double y = pos.y + speed * dir.y;
@@ -68,12 +72,13 @@ public class Engine implements Runnable {
 		    			if (y > rules.y_width || y < 0) {
 		    				y = pos.y;
 		    			}
-		    			System.out.println("Moving fish " + f.id + " to " + x + ", " + y);
+		    			
 		    			//TODO
 		    			FishState new_fs = new FishState();
-		    			new_fs.setPosition(new Vector(x, y));
-		    			new_fs.setRudderVector(dir);
-		    			new_fs.setSpeed(speed);
+		    			new_fs.position = new Vector(x, y);
+		    			new_fs.rudderDirection = dir;
+		    			new_fs.speed = speed;
+		    			//System.out.println("Moving fish " + f.id + " to " + new_fs.getPosition() + ", old pos was " + pos + ", speed was " + speed + ", dir was " + dir);
 		    			backState.fish_states.put(f, new_fs);
 	    			}
 	    		}
@@ -85,6 +90,14 @@ public class Engine implements Runnable {
     }
 
     private void spawnFish() {
+    	for (FishState fs : newFish.keySet()) {
+    		Fish f = new Fish();
+    		FishAI ai = newFish.get(fs);
+    		// TODO: thread safety!
+    		ai.myFish.add(f);
+    		backState.fish_states.put(f, fs);
+    		newFish.remove(fs);
+    	}
     }
     
     /* Temporary function - will need to remove later */
@@ -97,10 +110,14 @@ public class Engine implements Runnable {
 	    		ai_thread.start();
 	    	}
 	    	FishAI ai = controllers.get(0);
-	    	Fish f = new Fish(rules, 0, 0, 0);
-	    	f.setPosition(rng.nextInt(rules.x_width - 150)+75, 
+	    	FishState fs = new FishState();
+	    	fs.position = new Vector(rng.nextInt(rules.x_width - 150)+75, 
 	    			rng.nextInt(rules.y_width - 150) + 75);
-	    	ai.myFish.add(f);
+	    	fs.rudderDirection = new Vector(0, 0);
+	    	fs.speed = 0;
+	    	fs.radius = 0;
+	    	
+	    	newFish.put(fs, ai);
     	}
     }
 

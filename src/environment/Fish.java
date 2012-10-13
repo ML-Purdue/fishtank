@@ -1,9 +1,12 @@
 package environment;
 
-import FishState.java;
-
 public class Fish {
-    public enum FishCode {
+	public RuleSet rules;
+	protected FishState requested_state;
+	protected int id;
+	public static int max_id;
+	
+	public enum FishCode {
 		OK,
 		DEAD,
 		TOO_SMALL,
@@ -11,114 +14,85 @@ public class Fish {
 		OUT_OF_BOUNDS,
 		COLLISION,
 		NOT_DEFINED
-    }
+	}
 
-    /* member variables */
-    private FishState fishState;
+	/* member variables */
 
-    /* the usual methods */
+	/* the usual methods */
 
-    // constructor
-    public Fish() {
-	fishState.rules = RuleSet.dflt_rules();
-	fishState.radius = 10;
-	fishState.id = ++FishState.max_id;
-    }
+	// constructor
+	public Fish() {
+		requested_state = new FishState();
+		synchronized (requested_state) {
+			this.rules = RuleSet.dflt_rules();
+			requested_state.radius = 10;
+			id = ++max_id;
+		}
+	}
 
-    // constructor
-    public Fish(RuleSet rules, double rudderDirection, double speed, int radius) {
-        fishState.rules = rules;
-	fishState.rudderDirection = rudderDirection;
-	fishState.speed = speed;
-	fishState.radius = radius;
-	fishState.id = ++FishState.maxID;
-    }
+	// constructor
+	public Fish(RuleSet rules, double rudderDirection, double speed, int radius) {
+		requested_state = new FishState();
+		synchronized (requested_state) {
+			this.rules = rules;
+			setRudderDirection(rudderDirection);
+			setSpeed(speed);
+			requested_state.radius = radius;
+			id = ++max_id;
+		}
+	}
 
-    /* fish action methods */
+	/* fish action methods */
 
-    // degrees are standard math textbook: from the right side counterclockwise
-    public FishCode setRudderDirection(double degrees) {
-    	Vector direction = new Vector(1, Math.tan(degrees));
-    	direction = direction.normalize();
-        fishState.rudderDirection = direction;
-        return FishState.FishCode.OK;
-    }
+	// degrees are standard math textbook: from the right side counterclockwise
+	public FishCode setRudderDirection(double degrees) {
+		Vector direction = new Vector(1, Math.tan(degrees));
+		direction = direction.normalize();
+		synchronized (requested_state) {
+			requested_state.rudderDirection = direction;
+		}
+		return FishCode.OK;
+	}
 
-    // set rudder direction using the given two-dimensional vector
-    public FishCode setRudderDirection(double x, double y) {
-    	fishState.rudderDirection = new Vector(x, y);
-    	fishState.rudderDirection = rudderDirection.normalize();
-    	return FishState.FishCode.OK;
-    }
+	// set rudder direction using the given two-dimensional vector
+	public FishCode setRudderDirection(double x, double y) {
+		synchronized(requested_state) {
+			requested_state.rudderDirection = new Vector(x, y);
+			requested_state.rudderDirection = requested_state.rudderDirection.normalize();
+			return FishCode.OK;
+		}
+	}
 
-    // set the fish's speed
-    public FishCode setSpeed(double speed) {
-    	if (speed > rules.max_speed) {
-    		fishState.speed = fishState.rules.max_speed;
-    		return FishState.FishCode.OUT_OF_BOUNDS;
-    	} else if (speed < 0) {
-    		fishState.speed = 0;
-    		return FishState.FishCode.OUT_OF_BOUNDS;
-    	} else {
-    		fishState.speed = speed;
-    		return FishState.FishCode.OK;
-    	}
-    }
+	// set the fish's speed
+	public FishCode setSpeed(double speed) {
+		synchronized(requested_state) {
+			if (speed > rules.max_speed) {
+				requested_state.speed = rules.max_speed;
+				return FishCode.OUT_OF_BOUNDS;
+			} else if (speed < 0) {
+				requested_state.speed = 0;
+				return FishCode.OUT_OF_BOUNDS;
+			} else {
+				requested_state.speed = speed;
+				return FishCode.OK;
+			}
+		}
+	}
 
-    // reproduce the fish
-    public FishCode reproduce() {
-    	//TODO
-    	return FishCode.NOT_DEFINED;
-    }
+	// reproduce the fish
+	public FishCode reproduce() {
+		//TODO
+		return FishCode.NOT_DEFINED;
+	}
 
-    // let the fish eat
-    public FishCode eat() {
-    	//TODO
-    	return FishCode.NOT_DEFINED;
-    }
-
-    /* fish sense methods */
-
-    // accessor
-    public double getNutrients() {
-	return fishState.nutrients;
-    }
-
-    // accessor
-    public boolean isAlive() {
-	return fishState.alive;
-    }
-
-    // accessor
-    public int getRadius() {
-	return fishState.radius;
-    }
-
-    // accessor
-    public double getRudderDirection() {
-        return Math.tan(fishState.rudderDirection.y / fishState.rudderDirection.x);
-    }
-
-    // accessor
-    public Vector getRudderVector() {
-	return fishState.rudderDirection;
-    }
-
-    // accessor
-    public double getSpeed() {
-        return fishState.speed;
-    }
-
-    /* engine control methods */
-
-    // mutator
-    protected void setNutrients(double nutrients) {
-	fishState.nutrients = nutrients;
-    }
-
-    // mutator
-    protected void setAlive(boolean alive) {
-	fishState.alive = alive;
-    }
+	// let the fish eat
+	public FishCode eat() {
+		//TODO
+		return FishCode.NOT_DEFINED;
+	}
+	
+	public int getID () {
+		return id;
+	}
 }
 

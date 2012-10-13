@@ -3,16 +3,17 @@ package control;
 import java.util.HashMap;
 
 import environment.Engine;
+import environment.FishState;
 import environment.WorldState;
 import environment.Fish;
 import environment.Vector;
 
 public class CircleFish extends FishAI {
-	private HashMap<Fish, Vector> centers;
+	//private HashMap<Fish, Vector> centers;
 
 	public CircleFish(Engine engine) {
 		super(engine);
-		centers = new HashMap<Fish, Vector>();
+		//centers = new HashMap<Fish, Vector>();
 	}
 
 	@Override
@@ -26,16 +27,13 @@ public class CircleFish extends FishAI {
 			current = engine.getState(prev.seqID);
 			
 			for (Fish f : myFish) {
-				Vector center = centers.get(f);
-				if (center == null) {	// New fish
-					center = new Vector(f.getPosition().x - 100, f.getPosition().y - 100);
-					centers.put(f, center);
-				}
+				System.out.println("Handling fish " + f.getID() + " Speed is " + speed);
+				FishState fs = current.get_state(f);
 				
 				f.setSpeed(speed);
-				if (f.getPosition().x > engine.rules.x_width - 10) {
+				if (fs.getPosition().x > engine.rules.x_width - 10) {
 					f.setRudderDirection(-1, 0);
-				} else if (f.getPosition().x < 10) {
+				} else if (fs.getPosition().x < 10) {
 					f.setRudderDirection(1, 0);
 				}
 			}

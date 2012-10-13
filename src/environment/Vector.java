@@ -18,5 +18,10 @@ public class Vector {
     	len = Math.sqrt(len);
     	return new Vector(x/len, y/len);
     }
+    
+    @Override
+    public String toString () {
+    	return "(" + x + ", " + y + ")";
+    }
 }
 

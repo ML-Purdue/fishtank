@@ -13,6 +13,7 @@ import javax.swing.JFrame;
 
 import environment.Engine;
 import environment.Fish;
+import environment.FishState;
 import environment.WorldState;
 import environment.Vector;
 
@@ -75,14 +76,14 @@ public class Visualizer extends JFrame implements Runnable {
         if (state == null) {
                 return;
         }
-        System.out.println("Iterating paint, State "+state.seqID);
         for (Fish fish : state.get_fish()) {
-            Vector pos = state.get_location(fish);
-        	System.out.println("Found a fish!");
+        	FishState fs = state.get_state(fish);
+        	Vector pos = fs.getPosition();
+        	System.out.println("Found a fish! Location " + fs.getPosition().toString());
             bufferGraphics.setColor(new Color(255, 100, 0));
-            bufferGraphics.fillOval((int)pos.x - fish.getRadius(),
-                                    (int)pos.y - fish.getRadius(),
-                                    2 * fish.getRadius(), 2 * fish.getRadius());
+            bufferGraphics.fillOval((int)pos.x - fs.getRadius(),
+                                    (int)pos.y - fs.getRadius(),
+                                    2 * fs.getRadius(), 2 * fs.getRadius());
         }
            
         // TODO Draw the plants
