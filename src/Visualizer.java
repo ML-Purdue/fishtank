@@ -63,30 +63,17 @@ public class Visualizer extends JFrame implements Runnable {
         bufferGraphics.fillRect(0, 0, buffer.getWidth(), buffer.getHeight());
    
         //Draw the fish
-        tmpFishLoc.position.x += Math.cos(tmpFishLoc.fish.getRudderDirection()) * 0.1;
-        tmpFishLoc.position.x %= buffer.getWidth();
-        tmpFishLoc.position.y += Math.sin(tmpFishLoc.fish.getRudderDirection()) * 0.1;
-        tmpFishLoc.position.y %= buffer.getHeight();
-        if (tmpFishLoc.position.x < 0) tmpFishLoc.position.x += buffer.getWidth();
-        if (tmpFishLoc.position.y < 0) tmpFishLoc.position.y += buffer.getHeight();
-        tmpFishLoc.fish.setRudderDirection(tmpFishLoc.fish.getRudderDirection() + 0.001);
-        bufferGraphics.setColor(new Color(255, 255, 0));
-        //bufferGraphics.fillOval((int)tmpFishLoc.position.x, (int)tmpFishLoc.position.y, tmpFishLoc.fish.radius * 2, tmpFishLoc.fish.radius * 2);
-        bufferGraphics.setColor(new Color(255, 0, 0));
-        int centerX = (int)tmpFishLoc.position.x + tmpFishLoc.fish.radius;
-        int centerY = (int)tmpFishLoc.position.y + tmpFishLoc.fish.radius;
-        int rudderX = (int)(centerX + -2 * tmpFishLoc.fish.radius * Math.cos(tmpFishLoc.fish.getRudderDirection()));
-        int rudderY = (int)(centerY + -2 * tmpFishLoc.fish.radius * Math.sin(tmpFishLoc.fish.getRudderDirection()));
-        //bufferGraphics.drawLine(centerX, centerY, rudderX, rudderY);
-        bufferGraphics.rotate(tmpFishLoc.fish.getRudderDirection(), centerX, centerY);
-        bufferGraphics.drawImage(fishImage, (int)tmpFishLoc.position.x, (int)tmpFishLoc.position.y, null);
-        bufferGraphics.rotate(-tmpFishLoc.fish.getRudderDirection(), centerX, centerY);
-        /*
-        for (FishLocation fishLocation : state.fishLocs) {
-            bufferGraphics.setColor(Color.ORANGE);
-            bufferGraphics.fillOval((int)fishLocation.position.x, (int)fishLocation.position.y, 50, 50);
+
+        // TODO draw fish features like rudder
+        if (state == null) {
+                return;
         }
-        */
+        for (Fish fish : state.fishList) {
+            bufferGraphics.setColor(new Color(255, 100, 0));
+            bufferGraphics.fillOval((int)fish.getPosition().x - fish.getRadius(),
+                                    (int)fish.getPosition().y - fish.getRadius(),
+                                    2 * fish.getRadius(), 2 * fish.getRadius());
+        }
            
         // TODO Draw the plants
 
