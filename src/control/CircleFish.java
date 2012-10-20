@@ -1,12 +1,9 @@
 package control;
 
-import java.util.HashMap;
-
 import environment.Engine;
+import environment.Fish;
 import environment.FishState;
 import environment.WorldState;
-import environment.Fish;
-import environment.Vector;
 
 public class CircleFish extends FishAI {
 	//private HashMap<Fish, Vector> centers;

@@ -13,6 +13,10 @@ public class Vector {
         this.y = y;
     }
     
+    public Vector clone() {
+    	return new Vector(x, y);
+    }
+    
     public Vector normalize() {
     	double len = x * x + y * y;
     	len = Math.sqrt(len);

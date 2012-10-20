@@ -73,12 +73,12 @@ public class Engine implements Runnable {
 		    				y = pos.y;
 		    			}
 		    			
-		    			//TODO
-		    			FishState new_fs = new FishState();
+		    			FishState new_fs = old_fs.clone();
 		    			new_fs.position = new Vector(x, y);
 		    			new_fs.rudderDirection = dir;
 		    			new_fs.speed = speed;
-		    			//System.out.println("Moving fish " + f.id + " to " + new_fs.getPosition() + ", old pos was " + pos + ", speed was " + speed + ", dir was " + dir);
+		    			//System.out.println("Moving fish " + f.id + " to " + new_fs.getPosition() +
+		    			//", old pos was " + pos + ", speed was " + speed + ", dir was " + dir);
 		    			backState.fish_states.put(f, new_fs);
 	    			}
 	    		}
@@ -87,6 +87,21 @@ public class Engine implements Runnable {
     }
 
     private void collideFish() {
+    }
+    
+    private void decayFish() {
+    	for (FishState fs : backState.fish_states.values()) {
+			// -1 per fish per round
+    		// In the future, we might want to make this dependent on fish size
+    		fs.nutrients -= 1;
+    		
+    		// -1 per unit of speed
+    		fs.nutrients -= (int) fs.speed;
+    		
+    		if (fs.nutrients <= 0) {
+    			fs.alive = false;
+    		}
+    	}
     }
 
     private void spawnFish() {
@@ -137,6 +152,8 @@ public class Engine implements Runnable {
             moveFish();
 
             collideFish();
+            
+            decayFish();
 
             spawnFish();
 
