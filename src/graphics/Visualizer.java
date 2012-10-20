@@ -23,15 +23,18 @@ public class Visualizer extends JFrame implements Runnable {
     private static Engine fishtank;
     private Thread engineThread;
     private WorldState state;
-    private int width = 512, height = 512;  // XXX this should not be defined here
+    private int width, height;  // XXX this should not be defined here
     private BufferedImage fishImage;
 
     public Visualizer() {
         //Set up the fishtank
+    	fishtank = new Engine();
+        width = fishtank.rules.x_width;
+        height = fishtank.rules.y_width;
         buffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         bufferGraphics = (Graphics2D)buffer.getGraphics();
         bufferGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        fishtank = new Engine();
+        
         engineThread = new Thread(fishtank);
         try {
 			fishImage = ImageIO.read(new File("fish.png"));
