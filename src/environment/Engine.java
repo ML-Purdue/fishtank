@@ -66,7 +66,6 @@ public class Engine implements Runnable {
 						double y = pos.y + speed * dir.y;
 
 						// TODO: better collision handling
-<<<<<<< HEAD
 		    			if (x > rules.x_width || x < 0) {
 		    				x = pos.x;
 		    			}
@@ -143,69 +142,6 @@ public class Engine implements Runnable {
         while(true) {
         	System.out.println("iteration - state id is " + numStates);
         	try {
-=======
-						if (x > rules.x_width || x < 0) {
-							x = pos.x;
-						}
-						if (y > rules.y_width || y < 0) {
-							y = pos.y;
-						}
-
-						//TODO
-						FishState new_fs = new FishState();
-						new_fs.position = new Vector(x, y);
-						new_fs.rudderDirection = dir;
-						new_fs.speed = speed;
-						//System.out.println("Moving fish " + f.id + " to " + new_fs.getPosition() + ", old pos was " + pos + ", speed was " + speed + ", dir was " + dir);
-						backState.fish_states.put(f, new_fs);
-					}
-				}
-			}
-		}
-	}
-
-	private void collideFish() {
-	}
-
-	private void spawnFish() {
-		for (FishState fs : newFish.keySet()) {
-			Fish f = new Fish();
-			FishAI ai = newFish.get(fs);
-			// TODO: thread safety!
-			ai.myFish.add(f);
-			backState.fish_states.put(f, fs);
-			newFish.remove(fs);
-		}
-	}
-
-	/* Temporary function - will need to remove later */
-	public void add () {
-		synchronized (controllers) {
-			if (controllers.isEmpty()) {
-				FishAI ai = new CircleFish(this);
-				controllers.add(ai);
-				Thread ai_thread = new Thread(ai);
-				ai_thread.start();
-			}
-			FishAI ai = controllers.get(0);
-			FishState fs = new FishState();
-			fs.position = new Vector(rng.nextInt(rules.x_width - 150)+75,
-					rng.nextInt(rules.y_width - 150) + 75);
-			fs.rudderDirection = new Vector(0, 0);
-			fs.speed = 0;
-			fs.radius = 0;
-
-			newFish.put(fs, ai);
-		}
-	}
-
-	public void run() {
-		long numStates = 0;
-		add();
-		while(true) {
-			System.out.println("iteration - state id is " + numStates);
-			try {
->>>>>>> dcc9274cfa87e7164d0659ab5a1f881696165254
 				Thread.sleep(100);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
