@@ -16,7 +16,7 @@ public class FishState {
 		this.position = new Vector(0, 0);
 		this.rudderDirection = new Vector(1, 0);
 		this.speed = 0;
-		this.nutrients = 0;
+		this.nutrients = 100;
 		this.alive = true;
 		this.radius = 10;
 	}
@@ -59,6 +59,6 @@ public class FishState {
 	}
 
 	public int getRadius() {
-		return radius;
+		return (int)Math.sqrt(nutrients);
 	}
 }
