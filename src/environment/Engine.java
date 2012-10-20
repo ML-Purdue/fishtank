@@ -90,8 +90,10 @@ public class Engine implements Runnable {
 		synchronized(controllers) {
 			for (FishState f1 : backState.fish_states.values()) {
 				for (FishState f2 : backState.fish_states.values()) {
+                    if(f1 == f2 || !f1.alive || !f2.alive) continue;
+
 					double dist = Math.sqrt(Math.pow(2, (f1.position.x - f2.position.x)) + Math.pow(2, (f1.position.y - f2.position.y)));
-					if(dist < f1.radius + f2.radius){
+					if(dist < f1.getRadius() + f2.getRadius()){
 						if(f1.nutrients > f2.nutrients){
 							f2.alive = false;
 							f1.nutrients += (f2.nutrients * 0.8);
@@ -130,14 +132,16 @@ public class Engine implements Runnable {
     }
 
     private void spawnFish() {
-    	for (FishState fs : newFish.keySet()) {
-    		Fish f = new Fish();
-    		FishAI ai = newFish.get(fs);
-    		// TODO: thread safety!
-    		ai.myFish.add(f);
-    		backState.fish_states.put(f, fs);
-    		newFish.remove(fs);
-    	}
+        synchronized(newFish){
+            for (FishState fs : newFish.keySet()) {
+                Fish f = new Fish();
+                FishAI ai = newFish.get(fs);
+                // TODO: thread safety!
+                ai.myFish.add(f);
+                backState.fish_states.put(f, fs);
+            }
+            newFish.clear();
+        }
     }
 
     /* Temporary function - will need to remove later */
@@ -155,9 +159,10 @@ public class Engine implements Runnable {
 	    			rng.nextInt(rules.y_width - 150) + 75);
 	    	fs.rudderDirection = new Vector(0, 0);
 	    	fs.speed = 0;
-	    	fs.radius = 0;
 
-	    	newFish.put(fs, ai);
+            synchronized(newFish){
+                newFish.put(fs, ai);
+            }
     	}
     }
 

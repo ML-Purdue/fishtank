@@ -10,15 +10,13 @@ public class FishState {
 	protected double speed;
 	protected double nutrients;
 	protected boolean alive;
-	protected int radius;
 	
 	public FishState() {
 		this.position = new Vector(0, 0);
 		this.rudderDirection = new Vector(1, 0);
 		this.speed = 0;
-		this.nutrients = 100;
+		this.nutrients = 1000;
 		this.alive = true;
-		this.radius = 10;
 	}
 	
 	public FishState clone() {
@@ -28,7 +26,6 @@ public class FishState {
 		fs.speed = speed;
 		fs.nutrients = nutrients;
 		fs.alive = alive;
-		fs.radius = radius;
 		return fs;
 	}
 	

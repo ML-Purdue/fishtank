@@ -25,19 +25,17 @@ public class Fish {
 		requested_state = new FishState();
 		synchronized (requested_state) {
 			this.rules = RuleSet.dflt_rules();
-			requested_state.radius = 10;
 			id = ++max_id;
 		}
 	}
 
 	// constructor
-	public Fish(RuleSet rules, double rudderDirection, double speed, int radius) {
+	public Fish(RuleSet rules, double rudderDirection, double speed) {
 		requested_state = new FishState();
 		synchronized (requested_state) {
 			this.rules = rules;
 			setRudderDirection(rudderDirection);
 			setSpeed(speed);
-			requested_state.radius = radius;
 			id = ++max_id;
 		}
 	}

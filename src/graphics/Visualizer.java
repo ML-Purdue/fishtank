@@ -114,7 +114,9 @@ public class Visualizer extends JFrame implements Runnable {
             if(input.equals("exit")) {
                 System.exit(0);
             } else if (input.equals("spawn")) {
-            	fishtank.add();
+                input = in.nextLine();
+                for(int i = 0; i < Integer.parseInt(input); i++)
+                    fishtank.add();
             }
         }
     }
