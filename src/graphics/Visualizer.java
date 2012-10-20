@@ -78,15 +78,17 @@ public class Visualizer extends JFrame implements Runnable {
         }
         for (Fish fish : state.get_fish()) {
         	FishState fs = state.get_state(fish);
-        	Vector pos = fs.getPosition();
-        	System.out.println("Found a fish! Location " + fs.getPosition().toString());
-        	int tailBrightness = (int)((double)fs.getSpeed() / fishtank.rules.max_speed * 255);
-            bufferGraphics.setColor(new Color(tailBrightness, tailBrightness, tailBrightness));
-            bufferGraphics.drawLine((int)pos.x, (int)pos.y, (int)(pos.x - fs.getRudderVector().x * fs.getRadius() * 2), (int)(pos.y - fs.getRudderVector().y * fs.getRadius() * 2));
-            bufferGraphics.setColor(new Color(255, 100, 0));
-            bufferGraphics.fillOval((int)pos.x - fs.getRadius(),
-                                    (int)pos.y - fs.getRadius(),
-                                    2 * fs.getRadius(), 2 * fs.getRadius());
+            if(fs.isAlive()){
+                Vector pos = fs.getPosition();
+                System.out.println("Found a fish! Location " + fs.getPosition().toString());
+                int tailBrightness = (int)((double)fs.getSpeed() / fishtank.rules.max_speed * 255);
+                bufferGraphics.setColor(new Color(tailBrightness, tailBrightness, tailBrightness));
+                bufferGraphics.drawLine((int)pos.x, (int)pos.y, (int)(pos.x - fs.getRudderVector().x * fs.getRadius() * 2), (int)(pos.y - fs.getRudderVector().y * fs.getRadius() * 2));
+                bufferGraphics.setColor(new Color(255, 100, 0));
+                bufferGraphics.fillOval((int)pos.x - fs.getRadius(),
+                                        (int)pos.y - fs.getRadius(),
+                                        2 * fs.getRadius(), 2 * fs.getRadius());
+            }
         }
            
         // TODO Draw the plants
