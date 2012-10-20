@@ -87,6 +87,31 @@ public class Engine implements Runnable {
 	}
 
 	private void collideFish() {
+		synchronized(controllers) {
+			for (FishState f1 : backState.fish_states.values()) {
+				for (FishState f2 : backState.fish_states.values()) {
+					double dist = Math.sqrt(Math.pow(2, (f1.position.x - f2.position.x)) + Math.pow(2, (f1.position.y - f2.position.y)));
+					if(dist < f1.radius + f2.radius){
+						if(f1.nutrients > f2.nutrients){
+							f2.alive = false;
+							f1.nutrients += (f2.nutrients * 0.8);
+						}else if(f2.nutrients > f1.nutrients){
+							f1.alive = false;
+							f2.nutrients += (f1.nutrients * 0.8);
+						}else{
+							if(Math.random() > 0.5){
+								f2.alive = false;
+								f1.nutrients += (f2.nutrients * 0.8);
+							}else{
+								f1.alive = false;
+								f2.nutrients += (f1.nutrients * 0.8);
+							}
+						}
+					}
+
+				}
+			}
+		}
 	}
 
 	private void spawnFish() {
