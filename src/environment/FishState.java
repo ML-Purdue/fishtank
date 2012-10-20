@@ -21,6 +21,17 @@ public class FishState {
 		this.radius = 10;
 	}
 	
+	public FishState clone() {
+		FishState fs = new FishState();
+		fs.position = position.clone();
+		fs.rudderDirection = rudderDirection.clone();
+		fs.speed = speed;
+		fs.nutrients = nutrients;
+		fs.alive = alive;
+		fs.radius = radius;
+		return fs;
+	}
+	
 	public Vector getPosition() {
 		return position;
 	}
