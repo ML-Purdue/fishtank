@@ -92,7 +92,8 @@ public class Engine implements Runnable {
 				for (FishState f2 : backState.fish_states.values()) {
                     if(f1 == f2 || !f1.alive || !f2.alive) continue;
 
-					double dist = Math.sqrt(Math.pow(2, (f1.position.x - f2.position.x)) + Math.pow(2, (f1.position.y - f2.position.y)));
+					double dist = Math.sqrt(Math.pow((f1.position.x - f2.position.x), 2)
+							+ Math.pow((f1.position.y - f2.position.y), 2));
 					if(dist < f1.getRadius() + f2.getRadius()){
 						if(f1.nutrients > f2.nutrients){
 							f2.alive = false;
