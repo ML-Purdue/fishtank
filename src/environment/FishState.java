@@ -6,14 +6,14 @@ package environment;
 
 public class FishState {
 	protected Vector position;
-	protected Vector rudderDirection;
+	protected Vector headding;
 	protected double speed;
 	protected double nutrients;
 	protected boolean alive;
 	
 	public FishState() {
 		this.position = new Vector(0, 0);
-		this.rudderDirection = new Vector(1, 0);
+		this.headding = new Vector(1, 0);
 		this.speed = 0;
 		this.nutrients = 1000;
 		this.alive = true;
@@ -22,7 +22,7 @@ public class FishState {
 	public FishState clone() {
 		FishState fs = new FishState();
 		fs.position = position.clone();
-		fs.rudderDirection = rudderDirection.clone();
+		fs.headding = headding.clone();
 		fs.speed = speed;
 		fs.nutrients = nutrients;
 		fs.alive = alive;
@@ -35,12 +35,12 @@ public class FishState {
 
 	// accessor
 	public double getRudderDegrees() {
-		return Math.tan(rudderDirection.y / rudderDirection.x);
+		return Math.tan(headding.y / headding.x);
 	}
 
 	// accessor
 	public Vector getRudderVector() {
-		return rudderDirection;
+		return headding;
 	}
 
 	public double getSpeed() {

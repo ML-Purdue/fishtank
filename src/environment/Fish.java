@@ -46,7 +46,7 @@ public class Fish {
 	public FishCode setRudderDirection(double degrees) {
 		Vector direction = new Vector(Math.cos(degrees * 2 * Math.PI / 360), Math.sin(degrees * 2 * Math.PI / 360));
 		synchronized (requested_state) {
-			requested_state.rudderDirection = direction;
+			requested_state.headding = direction;
 		}
 		return FishCode.OK;
 	}
@@ -54,8 +54,8 @@ public class Fish {
 	// set rudder direction using the given two-dimensional vector
 	public FishCode setRudderDirection(double x, double y) {
 		synchronized(requested_state) {
-			requested_state.rudderDirection = new Vector(x, y);
-			requested_state.rudderDirection = requested_state.rudderDirection.normalize();
+			requested_state.headding = new Vector(x, y);
+			requested_state.headding = requested_state.headding.normalize();
 			return FishCode.OK;
 		}
 	}

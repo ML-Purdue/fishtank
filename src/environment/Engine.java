@@ -75,7 +75,7 @@ public class Engine implements Runnable {
 
 		    			FishState new_fs = old_fs.clone();
 		    			new_fs.position = new Vector(x, y);
-		    			new_fs.rudderDirection = dir;
+		    			new_fs.headding = dir;
 		    			new_fs.speed = speed;
 		    			//System.out.println("Moving fish " + f.id + " to " + new_fs.getPosition() +
 		    			//", old pos was " + pos + ", speed was " + speed + ", dir was " + dir);
@@ -158,7 +158,7 @@ public class Engine implements Runnable {
 	    	FishState fs = new FishState();
 	    	fs.position = new Vector(rng.nextInt(rules.x_width - 150)+75,
 	    			rng.nextInt(rules.y_width - 150) + 75);
-	    	fs.rudderDirection = new Vector(0, 0);
+	    	fs.headding = new Vector(0, 0);
 	    	fs.speed = 0;
 
             synchronized(newFish){
