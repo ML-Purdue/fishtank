@@ -12,7 +12,7 @@ public class RuleSet {
 	}
 	
 	public static RuleSet dflt_rules() {
-		return new RuleSet(1024, 1024, 5);
+		return new RuleSet(1024, 800, 5);
 	}
 
 }
