@@ -47,6 +47,10 @@ public class Vector {
         return this.x*other.x + this.y*other.y;
     }
     
+    public boolean equals(Vector other) {
+    	return this.x == other.x && this.y == other.y;
+    }
+    
     public String toString () {
     	return "(" + x + ", " + y + ")";
     }
