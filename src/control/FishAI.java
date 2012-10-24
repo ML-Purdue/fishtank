@@ -8,9 +8,12 @@ public abstract class FishAI implements Runnable {
 	public Vector<Fish> myFish = null;
     Engine engine;
     
-    public static int START_NUTRIENTS; 
+    // Represents the number fish the AI will start with
+    // Initial nutrients will be divided among all fish
+    public static int startFish;
     
-    public FishAI (Engine engine) {
+    public FishAI (Engine engine, int startFish) {
+    	this.startFish= startFish;
     	this.engine = engine;
     	this.myFish = new Vector<Fish>();
     }

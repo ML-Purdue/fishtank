@@ -5,13 +5,14 @@ import java.util.ArrayList;
 import environment.Engine;
 import environment.Fish;
 import environment.FishState;
+import environment.Rules;
 import environment.WorldState;
 
 public class CircleFish extends FishAI {
 	//private HashMap<Fish, Vector> centers;
 
 	public CircleFish(Engine engine) {
-		super(engine);
+		super(engine, 5);
 		//centers = new HashMap<Fish, Vector>();
 	}
 
@@ -28,14 +29,14 @@ public class CircleFish extends FishAI {
 			ArrayList<Fish> removeList = new ArrayList<Fish>();
 			for (Fish f : myFish) {
 				System.out.println("Handling fish " + f.getID() + " Speed is " + speed);
-				FishState fs = current.get_state(f);
+				FishState fs = current.getState(f);
 				if (!fs.isAlive()) {
 					removeList.add(f);
 					continue;
 				}
 				
 				f.setSpeed(speed);
-				if (fs.getPosition().x > engine.rules.x_width - 10) {
+				if (fs.getPosition().x > Rules.xWidth - 10) {
 					f.setRudderDirection(-1, 0);
 				} else if (fs.getPosition().x < 10) {
 					f.setRudderDirection(1, 0);

@@ -14,6 +14,7 @@ import javax.swing.JFrame;
 import environment.Engine;
 import environment.Fish;
 import environment.FishState;
+import environment.Rules;
 import environment.WorldState;
 import environment.Vector;
 
@@ -29,8 +30,8 @@ public class Visualizer extends JFrame implements Runnable {
     public Visualizer() {
         //Set up the fishtank
     	fishtank = new Engine();
-        width = fishtank.rules.x_width;
-        height = fishtank.rules.y_width;
+        width = Rules.xWidth;
+        height = Rules.yWidth;
         buffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         bufferGraphics = (Graphics2D)buffer.getGraphics();
         bufferGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -79,12 +80,12 @@ public class Visualizer extends JFrame implements Runnable {
         if (state == null) {
                 return;
         }
-        for (Fish fish : state.get_fish()) {
-        	FishState fs = state.get_state(fish);
+        for (Fish fish : state.getFish()) {
+        	FishState fs = state.getState(fish);
             if(fs.isAlive()){
                 Vector pos = fs.getPosition();
                 System.out.println("Found a fish! Location " + fs.getPosition().toString());
-                int tailBrightness = (int)((double)fs.getSpeed() / fishtank.rules.max_speed * 255);
+                int tailBrightness = (int)((double)fs.getSpeed() / Rules.maxSpeed * 255);
                 bufferGraphics.setColor(new Color(tailBrightness, tailBrightness, tailBrightness));
                 bufferGraphics.drawLine((int)pos.x, (int)pos.y, (int)(pos.x - fs.getRudderVector().x * fs.getRadius() * 2), (int)(pos.y - fs.getRudderVector().y * fs.getRadius() * 2));
                 bufferGraphics.setColor(new Color(255, 100, 0));

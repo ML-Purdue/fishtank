@@ -1,10 +1,12 @@
 package environment;
 
+import control.FishAI;
+
 public class Fish {
-	public RuleSet rules;
 	protected FishState requested_state;
 	protected int id;
 	public static int max_id;
+	protected FishAI controller;
 	
 	public enum FishCode {
 		OK,
@@ -21,23 +23,10 @@ public class Fish {
 	/* the usual methods */
 
 	// constructor
-	public Fish() {
+	public Fish(FishAI controller) {
+		this.controller = controller;
 		requested_state = new FishState();
-		synchronized (requested_state) {
-			this.rules = RuleSet.dflt_rules();
-			id = ++max_id;
-		}
-	}
-
-	// constructor
-	public Fish(RuleSet rules, double rudderDirection, double speed) {
-		requested_state = new FishState();
-		synchronized (requested_state) {
-			this.rules = rules;
-			setRudderDirection(rudderDirection);
-			setSpeed(speed);
-			id = ++max_id;
-		}
+		id = ++max_id;
 	}
 
 	/* fish action methods */
@@ -63,8 +52,8 @@ public class Fish {
 	// set the fish's speed
 	public FishCode setSpeed(double speed) {
 		synchronized(requested_state) {
-			if (speed > rules.max_speed) {
-				requested_state.speed = rules.max_speed;
+			if (speed > Rules.maxSpeed) {
+				requested_state.speed = Rules.maxSpeed;
 				return FishCode.OUT_OF_BOUNDS;
 			} else if (speed < 0) {
 				requested_state.speed = 0;

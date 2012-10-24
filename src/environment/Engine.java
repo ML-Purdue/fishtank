@@ -8,21 +8,19 @@ import control.CircleFish;
 import control.FishAI;
 
 public class Engine implements Runnable {
-	public final RuleSet rules;
 	private WorldState backState;
 	private WorldState frontState;
 	private Object stateLock;
 	private ArrayList<FishAI> controllers;
+	private ArrayList<Fish> reproducers;
 	private Random rng;
-	private Hashtable <FishState, FishAI> newFish;
 
 	public Engine() {
-		this.rules = RuleSet.dflt_rules();
 		frontState = new WorldState(0);
 		stateLock = new Object();
 		controllers = new ArrayList<FishAI>();
 		rng = new Random();
-		newFish = new Hashtable<FishState, FishAI>();
+		reproducers = new ArrayList<Fish>();
 		//Add initial fish to the simulation
 	}
 
@@ -52,7 +50,7 @@ public class Engine implements Runnable {
 			for (FishAI ai : controllers) {
 				for (Fish f : ai.myFish) {
 					synchronized (f.requested_state) {
-						FishState old_fs = frontState.get_state(f);
+						FishState old_fs = frontState.getState(f);
 						FishState requested_fs = f.requested_state;
 						Vector pos = old_fs.getPosition();
 						Vector dir = requested_fs.getRudderVector();
@@ -66,10 +64,10 @@ public class Engine implements Runnable {
 						double y = pos.y + speed * dir.y;
 
 						// TODO: better collision handling
-		    			if (x > rules.x_width || x < 0) {
+		    			if (x > Rules.xWidth || x < 0) {
 		    				x = pos.x;
 		    			}
-		    			if (y > rules.y_width || y < 0) {
+		    			if (y > Rules.yWidth || y < 0) {
 		    				y = pos.y;
 		    			}
 
@@ -79,7 +77,7 @@ public class Engine implements Runnable {
 		    			new_fs.speed = speed;
 		    			//System.out.println("Moving fish " + f.id + " to " + new_fs.getPosition() +
 		    			//", old pos was " + pos + ", speed was " + speed + ", dir was " + dir);
-		    			backState.fish_states.put(f, new_fs);
+		    			backState.fishStates.put(f, new_fs);
 	    			}
 	    		}
 	    	}
@@ -88,8 +86,8 @@ public class Engine implements Runnable {
 
 	private void collideFish() {
 		synchronized(controllers) {
-			for (FishState f1 : backState.fish_states.values()) {
-				for (FishState f2 : backState.fish_states.values()) {
+			for (FishState f1 : backState.fishStates.values()) {
+				for (FishState f2 : backState.fishStates.values()) {
                     if(f1 == f2 || !f1.alive || !f2.alive) continue;
 
 					double dist = Math.sqrt(Math.pow((f1.position.x - f2.position.x), 2)
@@ -118,7 +116,7 @@ public class Engine implements Runnable {
 	}
 
     private void decayFish() {
-    	for (FishState fs : backState.fish_states.values()) {
+    	for (FishState fs : backState.fishStates.values()) {
 			// -1 per fish per round
     		// In the future, we might want to make this dependent on fish size
     		fs.nutrients -= 1;
@@ -131,17 +129,34 @@ public class Engine implements Runnable {
     		}
     	}
     }
+    
+    protected void requestRepro (Fish f) {
+    	synchronized(reproducers) {
+    		reproducers.add(f);
+    	}
+    }
 
     private void spawnFish() {
-        synchronized(newFish){
-            for (FishState fs : newFish.keySet()) {
-                Fish f = new Fish();
-                FishAI ai = newFish.get(fs);
-                // TODO: thread safety!
-                ai.myFish.add(f);
-                backState.fish_states.put(f, fs);
+        synchronized(reproducers){
+            for (Fish parent : reproducers) {
+            	FishState parentState = backState.getState(parent);
+            	backState.getState(parent).nutrients *= .4;		// Each baby fish gets 40% of the original food
+            	
+            	// Child fish should spawn behind the parent fish,
+            	// facing the opposite direction (to prevent accidental eating)
+            	FishState childState = parentState.clone();
+            	double childX = parentState.position.x - 2 * parentState.heading.x * parentState.getRadius();
+            	double childY = parentState.position.y - 2 * parentState.heading.y * parentState.getRadius();
+            	childState.position = new Vector(childX, childY);
+            	childState.heading = new Vector(-1 * parentState.heading.x, -1 * parentState.heading.y);
+            	
+            	Fish child = new Fish(parent.controller);
+            	child.requested_state = childState;
+                
+                parent.controller.myFish.add(child);
+                backState.fishStates.put(child, childState);
             }
-            newFish.clear();
+            reproducers.clear();
         }
     }
 
@@ -156,14 +171,11 @@ public class Engine implements Runnable {
 	    	}
 	    	FishAI ai = controllers.get(0);
 	    	FishState fs = new FishState();
-	    	fs.position = new Vector(rng.nextInt(rules.x_width - 150)+75,
-	    			rng.nextInt(rules.y_width - 150) + 75);
+	    	fs.position = new Vector(rng.nextInt(Rules.xWidth - 150)+75,
+	    			rng.nextInt(Rules.yWidth - 150) + 75);
 	    	fs.heading = new Vector(0, 0);
 	    	fs.speed = 0;
 
-            synchronized(newFish){
-                newFish.put(fs, ai);
-            }
     	}
     }
 
