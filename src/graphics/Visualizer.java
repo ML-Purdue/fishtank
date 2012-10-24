@@ -86,6 +86,7 @@ public class Visualizer extends JFrame implements Runnable, MouseMotionListener 
 
         // TODO draw fish features like rudder
         FishState fishUnderMouse = null;
+        int fumID = 0;
         if (state == null) {
                 return;
         }
@@ -93,17 +94,24 @@ public class Visualizer extends JFrame implements Runnable, MouseMotionListener 
         	FishState fs = state.getState(fish);
             if(fs.isAlive()){
                 Vector pos = fs.getPosition();
-                System.out.println("Found a fish! Location " + fs.getPosition().toString());
+                // Draw tail and outline according to speed
                 int tailBrightness = (int)((double)fs.getSpeed() / Rules.maxSpeed * 255);
                 bufferGraphics.setColor(new Color(tailBrightness, tailBrightness, tailBrightness));
-                bufferGraphics.drawLine((int)pos.x, (int)pos.y, (int)(pos.x - fs.getRudderVector().x * fs.getRadius() * 2), (int)(pos.y - fs.getRudderVector().y * fs.getRadius() * 2));
-                bufferGraphics.setColor(new Color(255, 100, 0));
+                bufferGraphics.drawLine((int)pos.x, (int)pos.y,
+                		(int)(pos.x - fs.getRudderVector().x * fs.getRadius() * 2),
+                		(int)(pos.y - fs.getRudderVector().y * fs.getRadius() * 2));
                 bufferGraphics.fillOval((int)pos.x - fs.getRadius(),
                                         (int)pos.y - fs.getRadius(),
                                         2 * fs.getRadius(), 2 * fs.getRadius());
+                bufferGraphics.setColor(fish.getColor());
+                bufferGraphics.fillOval((int)pos.x - fs.getRadius() + 1,
+                                        (int)pos.y - fs.getRadius() + 1,
+                                        2 * fs.getRadius() - 2,
+                                        2 * fs.getRadius() - 2);
             }
             if (fs.getPosition().minus(mousePosition).length() < fs.getRadius()) {
             	fishUnderMouse = fs;
+            	fumID = fish.getID();
             }
         }
         
@@ -113,7 +121,17 @@ public class Visualizer extends JFrame implements Runnable, MouseMotionListener 
         bufferGraphics.fillRect(0, buffer.getHeight() - tooltipHeight, buffer.getWidth(), tooltipHeight);
         bufferGraphics.setColor(Color.BLACK);
         if (fishUnderMouse != null) {
-        	bufferGraphics.drawString(String.format("ID %d, Nut %.2f, Speed %.2f, Dir %s", state.seqID, fishUnderMouse.getNutrients(), fishUnderMouse.getSpeed(), fishUnderMouse.getRudderVector()), 5, buffer.getHeight() - tooltipBottomMargin);
+        	bufferGraphics.drawString(String.format("Frame %d ID %d, Nut %.2f, Change %.2f, Speed %.2f, Dir %s",
+	        			state.seqID, fumID,
+	        			fishUnderMouse.getNutrients(), Rules.decay(fishUnderMouse),
+	        			fishUnderMouse.getSpeed(), fishUnderMouse.getRudderVector()),
+        			5, buffer.getHeight() - tooltipBottomMargin);
+        } else {
+        	bufferGraphics.drawString(String.format("Frame %d, Fish %d, Controllers %d, Max fish %d, Max nut %.2f",
+        				state.seqID, fishtank.numFish(),
+        				fishtank.numControllers(),
+        				fishtank.maxFish(), fishtank.maxNutrients()),
+        			5, buffer.getHeight() - tooltipBottomMargin);
         }
            
         // TODO Draw the plants
