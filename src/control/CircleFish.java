@@ -6,18 +6,19 @@ import environment.Engine;
 import environment.Fish;
 import environment.FishState;
 import environment.Rules;
+import environment.Vector;
 import environment.WorldState;
 
 public class CircleFish extends FishAI {
 	//private HashMap<Fish, Vector> centers;
 
 	public CircleFish(Engine engine) {
-		super(engine, 5);
+		super(engine, 3);
 		//centers = new HashMap<Fish, Vector>();
 	}
 
 	@Override
-	public void run() {
+	public void iterate() {
 		WorldState prev = null;
 		WorldState current = engine.getState(0);
 		int speed = 0;
@@ -28,7 +29,6 @@ public class CircleFish extends FishAI {
 			
 			ArrayList<Fish> removeList = new ArrayList<Fish>();
 			for (Fish f : myFish) {
-				System.out.println("Handling fish " + f.getID() + " Speed is " + speed);
 				FishState fs = current.getState(f);
 				if (!fs.isAlive()) {
 					removeList.add(f);
@@ -36,10 +36,21 @@ public class CircleFish extends FishAI {
 				}
 				
 				f.setSpeed(speed);
+				Vector heading = fs.getRudderVector();
 				if (fs.getPosition().x > Rules.xWidth - 10) {
 					f.setRudderDirection(-1, 0);
 				} else if (fs.getPosition().x < 10) {
 					f.setRudderDirection(1, 0);
+					
+				} else if (!heading.equals(new Vector(1, 0)) && !heading.equals(new Vector(-1, 0))) {
+					if (heading.x > 0) f.setRudderDirection(1, 0);
+					else f.setRudderDirection(-1, 0);
+				}
+				
+				// Reproduce
+				if (fs.getNutrients() > 800) {
+					System.out.println("Fish " + f.getID() + " requesting reproduction");
+					f.reproduce();
 				}
 			}
 			// Get rid of dead fish
