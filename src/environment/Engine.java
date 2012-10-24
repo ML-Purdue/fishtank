@@ -180,15 +180,18 @@ public class Engine implements Runnable {
     }
 
     public void run() {
+        long iter_time = 0;
+        long min_iter_time = 100000000L; //100ms
+
         long numStates = 0;
+
+        //Add an initial fish
         add();
+
         while(true) {
+            iter_time = System.nanoTime();
+
         	System.out.println("iteration - state id is " + numStates);
-        	try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
 			backState = new WorldState(numStates++);
 
 			//Calculate the next state from frontState into the backState
@@ -202,6 +205,15 @@ public class Engine implements Runnable {
 
 			//Push backState to be the new frontState
 			flipStates();
+
+            iter_time = System.nanoTime() - iter_time;
+            if(iter_time < min_iter_time){
+                try {
+                    Thread.sleep((min_iter_time - iter_time) / 1000000L);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
 		}
 	}
 }

@@ -2,7 +2,10 @@ package graphics;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.RenderingHints;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -18,7 +21,7 @@ import environment.Rules;
 import environment.WorldState;
 import environment.Vector;
 
-public class Visualizer extends JFrame implements Runnable {
+public class Visualizer extends JFrame implements Runnable, MouseMotionListener {
     private BufferedImage buffer;
     private Graphics2D bufferGraphics;
     private static Engine fishtank;
@@ -26,6 +29,8 @@ public class Visualizer extends JFrame implements Runnable {
     private WorldState state;
     private int width, height;  // XXX this should not be defined here
     private BufferedImage fishImage;
+    private Vector mousePosition;
+    private Color background = new Color(134, 177, 225);
 
     public Visualizer() {
         //Set up the fishtank
@@ -43,6 +48,9 @@ public class Visualizer extends JFrame implements Runnable {
 			e.printStackTrace();
 			System.exit(0);
 		}
+        
+        mousePosition = new Vector();
+        this.addMouseMotionListener(this);
     }
 
     /* Helper function to print the usage statement */
@@ -71,12 +79,13 @@ public class Visualizer extends JFrame implements Runnable {
     //Push the visualization of the state to the window
     public void paint(Graphics g) {
     	//Draw the tank
-        bufferGraphics.setColor(new Color(134, 177, 225));
+        bufferGraphics.setColor(background);
         bufferGraphics.fillRect(0, 0, buffer.getWidth(), buffer.getHeight());
    
         //Draw the fish
 
         // TODO draw fish features like rudder
+        FishState fishUnderMouse = null;
         if (state == null) {
                 return;
         }
@@ -93,6 +102,18 @@ public class Visualizer extends JFrame implements Runnable {
                                         (int)pos.y - fs.getRadius(),
                                         2 * fs.getRadius(), 2 * fs.getRadius());
             }
+            if (fs.getPosition().minus(mousePosition).length() < fs.getRadius()) {
+            	fishUnderMouse = fs;
+            }
+        }
+        
+        // tooltip
+        int tooltipHeight = 20, tooltipBottomMargin = 10;
+        bufferGraphics.setColor(Color.WHITE);
+        bufferGraphics.fillRect(0, buffer.getHeight() - tooltipHeight, buffer.getWidth(), tooltipHeight);
+        bufferGraphics.setColor(Color.BLACK);
+        if (fishUnderMouse != null) {
+        	bufferGraphics.drawString(String.format("ID %d, Nut %.2f, Speed %.2f, Dir %s", state.seqID, fishUnderMouse.getNutrients(), fishUnderMouse.getSpeed(), fishUnderMouse.getRudderVector()), 5, buffer.getHeight() - tooltipBottomMargin);
         }
            
         // TODO Draw the plants
@@ -124,5 +145,12 @@ public class Visualizer extends JFrame implements Runnable {
             }
         }
     }
+
+	public void mouseMoved(MouseEvent arg0) {
+		mousePosition = new Vector(arg0.getX(), arg0.getY());
+	}
+
+	public void mouseDragged(MouseEvent arg0) {
+	}
 }
 

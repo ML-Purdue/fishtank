@@ -1,5 +1,6 @@
 package environment;
 
+import java.util.TreeMap;
 import java.util.Set;
 
 public class WorldState {
@@ -8,7 +9,7 @@ public class WorldState {
 
     public double xDim;
     public double yDim;
-    
+
     public Set<Fish> getFish() {
     	return fishStates.keySet();
     }

@@ -21,8 +21,8 @@ public class FishState {
 	
 	public FishState clone() {
 		FishState fs = new FishState();
-		fs.position = position.clone();
-		fs.heading = heading.clone();
+		fs.position = position;
+		fs.heading = heading;
 		fs.speed = speed;
 		fs.nutrients = nutrients;
 		fs.alive = alive;
