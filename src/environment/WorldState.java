@@ -7,9 +7,7 @@ public class WorldState {
     public long seqID;
     protected java.util.Hashtable<Fish, FishState> fishStates;
 
-    public double xDim;
-    public double yDim;
-
+    // TODO: this is a security hole!
     public Set<Fish> getFish() {
     	return fishStates.keySet();
     }
