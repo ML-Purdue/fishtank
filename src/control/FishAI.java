@@ -1,16 +1,18 @@
 package control;
-import java.util.ArrayList;
+import java.util.Vector;
 
 import environment.Engine;
 import environment.Fish;
 
 public abstract class FishAI implements Runnable {
-    public ArrayList<Fish> myFish = null;
+	public Vector<Fish> myFish = null;
     Engine engine;
+    
+    public static int START_NUTRIENTS; 
     
     public FishAI (Engine engine) {
     	this.engine = engine;
-    	this.myFish = new ArrayList<Fish>();
+    	this.myFish = new Vector<Fish>();
     }
 }
 
