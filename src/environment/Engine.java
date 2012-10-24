@@ -79,7 +79,7 @@ public class Engine implements Runnable {
 		    			new_fs.speed = speed;
 		    			//System.out.println("Moving fish " + f.id + " to " + new_fs.getPosition() +
 		    			//", old pos was " + pos + ", speed was " + speed + ", dir was " + dir);
-		    			backState.fish_states.put(f, new_fs);
+		    			backState.fishStates.put(f, new_fs);
 	    			}
 	    		}
 	    	}
@@ -88,8 +88,8 @@ public class Engine implements Runnable {
 
 	private void collideFish() {
 		synchronized(controllers) {
-			for (FishState f1 : backState.fish_states.values()) {
-				for (FishState f2 : backState.fish_states.values()) {
+			for (FishState f1 : backState.fishStates.values()) {
+				for (FishState f2 : backState.fishStates.values()) {
                     if(f1 == f2 || !f1.alive || !f2.alive) continue;
 
 					double dist = Math.sqrt(Math.pow((f1.position.x - f2.position.x), 2)
@@ -118,7 +118,7 @@ public class Engine implements Runnable {
 	}
 
     private void decayFish() {
-    	for (FishState fs : backState.fish_states.values()) {
+    	for (FishState fs : backState.fishStates.values()) {
 			// -1 per fish per round
     		// In the future, we might want to make this dependent on fish size
     		fs.nutrients -= 1;
@@ -139,7 +139,7 @@ public class Engine implements Runnable {
                 FishAI ai = newFish.get(fs);
                 // TODO: thread safety!
                 ai.myFish.add(f);
-                backState.fish_states.put(f, fs);
+                backState.fishStates.put(f, fs);
             }
             newFish.clear();
         }
@@ -168,15 +168,18 @@ public class Engine implements Runnable {
     }
 
     public void run() {
+        long iter_time = 0;
+        long min_iter_time = 100000000L; //100ms
+
         long numStates = 0;
+
+        //Add an initial fish
         add();
+
         while(true) {
+            iter_time = System.nanoTime();
+
         	System.out.println("iteration - state id is " + numStates);
-        	try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
 			backState = new WorldState(numStates++);
 
 			//Calculate the next state from frontState into the backState
@@ -190,6 +193,15 @@ public class Engine implements Runnable {
 
 			//Push backState to be the new frontState
 			flipStates();
+
+            iter_time = System.nanoTime() - iter_time;
+            if(iter_time < min_iter_time){
+                try {
+                    Thread.sleep((min_iter_time - iter_time) / 1000000L);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
 		}
 	}
 }
