@@ -1,5 +1,7 @@
 package environment;
 
+import java.awt.Color;
+
 import control.FishAI;
 
 public class Fish {
@@ -67,8 +69,8 @@ public class Fish {
 
 	// reproduce the fish
 	public FishCode reproduce() {
-		//TODO
-		return FishCode.NOT_DEFINED;
+		controller.engine.requestRepro(this);
+		return FishCode.OK;
 	}
 
 	// let the fish eat
@@ -79,6 +81,10 @@ public class Fish {
 	
 	public int getID () {
 		return id;
+	}
+	
+	public Color getColor () {
+		return controller.color;
 	}
 }
 
