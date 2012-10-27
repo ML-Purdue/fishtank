@@ -17,6 +17,7 @@ import javax.swing.JFrame;
 import environment.Engine;
 import environment.Fish;
 import environment.FishState;
+import environment.Food;
 import environment.Rules;
 import environment.WorldState;
 import environment.Vector;
@@ -35,8 +36,8 @@ public class Visualizer extends JFrame implements Runnable, MouseMotionListener 
     public Visualizer() {
         //Set up the fishtank
     	fishtank = new Engine();
-        width = Rules.xWidth;
-        height = Rules.yWidth;
+        width = Rules.tankWidth;
+        height = Rules.tankHeight;
         buffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         bufferGraphics = (Graphics2D)buffer.getGraphics();
         bufferGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -132,6 +133,11 @@ public class Visualizer extends JFrame implements Runnable, MouseMotionListener 
         				fishtank.numControllers(),
         				fishtank.maxFish(), fishtank.maxNutrients()),
         			5, buffer.getHeight() - tooltipBottomMargin);
+        }
+        
+        for (Food food : state.getFood()) {
+        	bufferGraphics.setColor(Color.GREEN);
+        	bufferGraphics.fillOval((int)(food.position.x - food.getRadius()), (int)(food.position.y - food.getRadius()), (int)(2 * food.getRadius()), (int)(2 * food.getRadius()));
         }
            
         // TODO Draw the plants

@@ -2,8 +2,8 @@ package environment;
 
 public class Rules {
 	public static final int maxSpeed = 5;
-	public static final int xWidth = 1024;
-	public static final int yWidth = 1024;
+	public static final int tankWidth = 1024;
+	public static final int tankHeight = 1024;
 	public static final int minFish = 15;
 	public static final double startingNutrients = 2000.0;
 	

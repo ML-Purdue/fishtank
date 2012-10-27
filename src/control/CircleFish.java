@@ -37,7 +37,7 @@ public class CircleFish extends FishAI {
 				
 				f.setSpeed(speed);
 				Vector heading = fs.getRudderVector();
-				if (fs.getPosition().x > Rules.xWidth - 10) {
+				if (fs.getPosition().x > Rules.tankWidth - 10) {
 					f.setRudderDirection(-1, 0);
 				} else if (fs.getPosition().x < 10) {
 					f.setRudderDirection(1, 0);

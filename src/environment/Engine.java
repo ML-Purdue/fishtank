@@ -22,9 +22,10 @@ public class Engine implements Runnable {
 	private int typeIndex = 0;
 	private int spawnRequest = 0;
 	private int numFish = 0;
+	private int foodCount = 10;
 
 	public Engine() {
-		frontState = new WorldState(0);
+		backState = new WorldState(0);
 		stateLock = new Object();
 		controllers = new ArrayList<FishAI>();
 		aiThreads = new Hashtable<FishAI, Thread>();
@@ -32,6 +33,8 @@ public class Engine implements Runnable {
 		reproducers = new ArrayList<Fish>();
 		aiTypes = new ArrayList<Class<? extends FishAI>>();
 		aiTypes.add(CircleFish.class);
+		flipStates();
+		generateFood(foodCount);
 	}
 
 	public WorldState getState(long ID) {
@@ -102,10 +105,10 @@ public class Engine implements Runnable {
 					double y = pos.y + speed * dir.y;
 
 					// TODO: better collision handling
-					if (x > Rules.xWidth || x < 0) {
+					if (x > Rules.tankWidth || x < 0) {
 						x = pos.x;
 					}
-					if (y > Rules.yWidth || y < 0) {
+					if (y > Rules.tankHeight || y < 0) {
 						y = pos.y;
 					}
 
@@ -116,6 +119,25 @@ public class Engine implements Runnable {
 					//System.out.println("Moving fish " + f.id + " to " + new_fs.getPosition() +
 					//", old pos was " + pos + ", speed was " + speed + ", dir was " + dir);
 					backState.fishStates.put(f, new_fs);
+				}
+			}
+		}
+	}
+	
+	private void generateFood(int n) {
+		for (int i = 0; i < n; i++) {
+			backState.food.add(new Food(new Vector(rng.nextDouble() * Rules.tankWidth, rng.nextDouble() * Rules.tankHeight), 100));
+		}
+	}
+	
+	private void eatFood() {
+		for (FishState fishState : backState.fishStates.values()) {
+			for (Food food : backState.food) {
+				double dist = Math.sqrt(Math.pow((fishState.position.x - food.position.x), 2)
+						+ Math.pow((fishState.position.y - food.position.y), 2));
+				if(dist < fishState.getRadius() + food.getRadius()){
+					fishState.nutrients += (food.nutrients * 0.8);
+					food.position = new Vector(rng.nextDouble() * Rules.tankWidth, rng.nextDouble() * Rules.tankHeight);
 				}
 			}
 		}
@@ -228,8 +250,8 @@ public class Engine implements Runnable {
     					FishState fs = new FishState();
     					fs.nutrients = nutrients;
     					fs.heading = new Vector(rng.nextDouble(), rng.nextDouble()).normalize();
-    					fs.position = new Vector(rng.nextInt(Rules.xWidth - 150)+75,
-    							rng.nextInt(Rules.yWidth - 150) + 75);
+    					fs.position = new Vector(rng.nextInt(Rules.tankWidth - 150)+75,
+    							rng.nextInt(Rules.tankHeight - 150) + 75);
     					f.requested_state = fs.clone();
     					ai.myFish.add(f);
     					backState.fishStates.put(f, fs);
@@ -283,9 +305,12 @@ public class Engine implements Runnable {
 
         	System.out.println("iteration - state id is " + numStates);
 			backState = new WorldState(numStates++);
+			backState.food = frontState.food;
 
 			//Calculate the next state from frontState into the backState
 			moveFish();
+			
+			eatFood();
 
             collideFish();
 

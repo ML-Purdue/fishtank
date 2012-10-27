@@ -17,6 +17,10 @@ public class Vector {
     	this(0, 0);
     }
     
+    public Vector clone() {
+    	return new Vector(x, y);
+    }
+    
     public double length() {
     	return Math.sqrt(x*x + y*y);
     }
