@@ -23,6 +23,7 @@ public class Engine implements Runnable {
 	private int typeIndex = 0;
 	private int spawnRequest = 0;
 	private int numFish = 0;
+	private Hashtable<Integer, Color> fishColors;
 
 	public Engine() {
 		frontState = new WorldState(0);
@@ -31,6 +32,7 @@ public class Engine implements Runnable {
 		aiThreads = new Hashtable<FishAI, Thread>();
 		rng = new Random();
 		reproducers = new ArrayList<Fish>();
+		fishColors = new Hashtable<Integer, Color>();
 		aiTypes = new ArrayList<Class<? extends FishAI>>();
 		aiTypes.add(CircleFish.class);
 		aiTypes.add(RandomFish.class);
@@ -72,7 +74,7 @@ public class Engine implements Runnable {
 		for (FishAI ai : controllers) {
 			double nutSum = 0;
 			for (Fish f : ai.myFish) {
-				FishState fs = frontState.getState(f);
+				FishState fs = frontState.getState(f.id);
 				if (fs.isAlive()) {
 					nutSum += fs.getNutrients();
 				}
@@ -81,6 +83,10 @@ public class Engine implements Runnable {
 				max = nutSum;
 		}
 		return max;
+	}
+	
+	public Color getColor(int fish_id) {
+		return fishColors.get(fish_id);
 	}
 
 	private void flipStates() {
@@ -93,7 +99,7 @@ public class Engine implements Runnable {
 		for (FishAI ai : controllers) {
 			for (Fish f : ai.myFish) {
 				synchronized (f.requested_state) {
-					FishState old_fs = frontState.getState(f);
+					FishState old_fs = frontState.getState(f.id);
 					FishState requested_fs = f.requested_state;
 					Vector pos = old_fs.getPosition();
 					Vector dir = requested_fs.getRudderVector();
@@ -103,6 +109,7 @@ public class Engine implements Runnable {
 					}
 
 					double speed = requested_fs.getSpeed();
+					speed = speed > Rules.maxSpeed(old_fs) ? Rules.maxSpeed(old_fs) : speed < 0 ? 0 : speed;
 					double x = pos.x + speed * dir.x;
 					double y = pos.y + speed * dir.y;
 
@@ -118,11 +125,9 @@ public class Engine implements Runnable {
 					new_fs.position = new Vector(x, y);
 					new_fs.heading = dir;
 					new_fs.speed = speed;
-					// System.out.println("Moving fish " + f.id + " to " +
-					// new_fs.getPosition() +
-					// ", old pos was " + pos + ", speed was " + speed +
-					// ", dir was " + dir);
-					backState.fishStates.put(f, new_fs);
+					//System.out.println("Moving fish " + f.id + " to " + new_fs.getPosition() +
+					//", old pos was " + pos + ", speed was " + speed + ", dir was " + dir);
+					backState.fishStates.put(f.id, new_fs);
 				}
 			}
 		}
@@ -162,144 +167,138 @@ public class Engine implements Runnable {
 	private void decayFish() {
 		for (FishState fs : backState.fishStates.values()) {
 			// -1 per fish per round
-			// In the future, we might want to make this dependent on fish size
-			fs.nutrients -= Rules.decay(fs);
+    		// In the future, we might want to make this dependent on fish size
+    		fs.nutrients -= Rules.decay(fs);
 
-			if (fs.nutrients <= 0) {
-				fs.alive = false;
-			}
-		}
+    		if (fs.nutrients <= 0) {
+    			fs.alive = false;
+    		}
+    	}
+    	
+    	// TODO: remove dead FishAIs.
+    }
+    
+    protected void requestRepro (Fish f) {
+    	synchronized(reproducers) {
+    		reproducers.add(f);
+    	}
+    }
 
-		// TODO: remove dead FishAIs.
-	}
+    private void spawnFish() {
+        // Handle reproduction requests
+    	synchronized(reproducers){
+            for (Fish parent : reproducers) {
+				System.out.println("Reproducing fish " + parent.id);
+            	FishState ps = backState.getState(parent.id);
+            	if (!ps.isAlive()) {
+            		continue;
+            	}
+            	backState.getState(parent.id).nutrients *= .4;		// Each baby fish gets 40% of the original food
+            	
+            	// Child fish should spawn behind the parent fish,
+            	// facing the opposite direction (to prevent accidental eating)
+            	Fish child = new Fish(parent.controller);
+            	FishState cs = ps.copy(child.id);
+            	cs.position = ps.position.plus(ps.heading.times(-2 * ps.getRadius()));
+            	cs.heading = ps.heading.times(-1);
+            	
+            	child.requested_state = cs.clone();
+                
+                parent.controller.myFish.add(child);
+                backState.fishStates.put(child.id, cs);
+                fishColors.put(child.id, child.controller.color);
+            }
+            reproducers.clear();
+        }
+        
+        // Decide whether we need to spawn a new AI
+    	int numFish = 0;
+    	for (FishAI ai : controllers) {
+    		numFish += ai.myFish.size();
+    	}
+    	if (numFish < Rules.minFish) {
+    		roundsUnderQuota++;
+    	} else {
+    		roundsUnderQuota = 0;
+    	}
+    	this.numFish = numFish;
+    	
+    	synchronized (this) {  // Make sure span request isn't set while spawning 
+    		if (roundsUnderQuota > 5 || spawnRequest > 0) {
+    			if (spawnRequest > 0) spawnRequest--;
+    			
+    			// Create a new FishAI
+    			try {
+    				// Figure out which controller type is "on deck"
+    				FishAI ai = aiTypes.get(typeIndex).getConstructor(Engine.class).newInstance(this);
+    				typeIndex++;
+    				typeIndex %= aiTypes.size();
+    				
+    				ai.color = new Color(rng.nextInt(156) + 100, rng.nextInt(156) + 100, rng.nextInt(156) + 100);
 
-	protected void requestRepro(Fish f) {
-		synchronized (reproducers) {
-			reproducers.add(f);
-		}
-	}
+    				// Create all the fish, add to the controller and to the backstate
+    				double nutrients = Rules.startingNutrients / ai.startFish;
+    				for (int i = 0; i < ai.startFish; i++) {
+    					Fish f = new Fish(ai);
+    					FishState fs = new FishState(f.id);
+    					fs.nutrients = nutrients;
+    					fs.heading = new Vector(rng.nextDouble(), rng.nextDouble()).normalize();
+    					fs.position = new Vector(rng.nextInt(Rules.xWidth - 150)+75,
+    							rng.nextInt(Rules.yWidth - 150) + 75);
+    					f.requested_state = fs.clone();
+    					ai.myFish.add(f);
+    					fishColors.put(f.id, ai.color);
+    					backState.fishStates.put(f.id, fs);
+    				}
 
-	private void spawnFish() {
-		// Handle reproduction requests
-		synchronized (reproducers) {
-			for (Fish parent : reproducers) {
-				System.out.println("Reproducing fish " + parent.getID());
-				FishState ps = backState.getState(parent);
-				if (!ps.isAlive()) {
-					continue;
-				}
-				backState.getState(parent).nutrients *= .4; // Each baby fish
-															// gets 40% of the
-															// original food
+    				// Start the AI
+    				controllers.add(ai);
+    				Thread ai_thread = new Thread(ai);
+    				aiThreads.put(ai, ai_thread);
+    				ai_thread.start();
 
-				// Child fish should spawn behind the parent fish,
-				// facing the opposite direction (to prevent accidental eating)
-				FishState cs = ps.clone();
-				cs.position = ps.position.plus(ps.heading.times(-2
-						* ps.getRadius()));
-				cs.heading = ps.heading.times(-1);
+    			} catch (IllegalArgumentException e) {
+    				// TODO Auto-generated catch block
+    				e.printStackTrace();
+    			} catch (SecurityException e) {
+    				// TODO Auto-generated catch block
+    				e.printStackTrace();
+    			} catch (InstantiationException e) {
+    				// TODO Auto-generated catch block
+    				e.printStackTrace();
+    			} catch (IllegalAccessException e) {
+    				// TODO Auto-generated catch block
+    				e.printStackTrace();
+    			} catch (InvocationTargetException e) {
+    				// TODO Auto-generated catch block
+    				e.printStackTrace();
+    			} catch (NoSuchMethodException e) {
+    				// TODO Auto-generated catch block
+    				e.printStackTrace();
+    			}
+    		}
+    	}
+    }
 
-				Fish child = new Fish(parent.controller);
-				child.requested_state = cs.clone();
+    /* Temporary function - will need to remove later */
+    public synchronized void add () {
+    	spawnRequest++;
+    }
 
-				parent.controller.myFish.add(child);
-				backState.fishStates.put(child, cs);
-			}
-			reproducers.clear();
-		}
+    public void run() {
+        long iter_time = 0;
+        long min_iter_time = 100000000L; //100ms
 
-		// Decide whether we need to spawn a new AI
-		int numFish = 0;
-		for (FishAI ai : controllers) {
-			numFish += ai.myFish.size();
-		}
-		if (numFish < Rules.minFish) {
-			roundsUnderQuota++;
-		} else {
-			roundsUnderQuota = 0;
-		}
-		this.numFish = numFish;
+        long numStates = 0;
 
-		synchronized (this) { // Make sure span request isn't set while spawning
-			if (roundsUnderQuota > 5 || spawnRequest > 0) {
-				if (spawnRequest > 0)
-					spawnRequest--;
+        //Add an initial fish
+        add();
 
-				// Create a new FishAI
-				try {
-					// Figure out which controller type is "on deck"
-					FishAI ai = aiTypes.get(typeIndex)
-							.getConstructor(Engine.class).newInstance(this);
-					typeIndex++;
-					typeIndex %= aiTypes.size();
+        while(true) {
+            iter_time = System.nanoTime();
 
-					ai.color = new Color(rng.nextInt(156) + 100,
-							rng.nextInt(156) + 100, rng.nextInt(156) + 100);
+        	System.out.println("iteration - state id is " + numStates);
 
-					// Create all the fish, add to the controller and to the
-					// backstate
-					double nutrients = Rules.startingNutrients / ai.startFish;
-					for (int i = 0; i < ai.startFish; i++) {
-						Fish f = new Fish(ai);
-						FishState fs = new FishState();
-						fs.nutrients = nutrients;
-						fs.heading = new Vector(rng.nextDouble(),
-								rng.nextDouble()).normalize();
-						fs.position = new Vector(
-								rng.nextInt(Rules.xWidth - 150) + 75,
-								rng.nextInt(Rules.yWidth - 150) + 75);
-						f.requested_state = fs.clone();
-						ai.myFish.add(f);
-						backState.fishStates.put(f, fs);
-					}
-
-					// Start the AI
-					controllers.add(ai);
-					Thread ai_thread = new Thread(ai);
-					aiThreads.put(ai, ai_thread);
-					ai_thread.start();
-
-				} catch (IllegalArgumentException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (SecurityException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (InstantiationException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IllegalAccessException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (InvocationTargetException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (NoSuchMethodException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		}
-	}
-
-	/* Temporary function - will need to remove later */
-	public synchronized void add() {
-		spawnRequest++;
-	}
-
-	public void run() {
-		long iter_time = 0;
-		long min_iter_time = 100000000L; // 100ms
-
-		long numStates = 0;
-
-		// Add an initial fish
-		add();
-
-		while (true) {
-			iter_time = System.nanoTime();
-
-			System.out.println("iteration - state id is " + numStates);
 			backState = new WorldState(numStates++);
 
 			// Calculate the next state from frontState into the backState

@@ -23,7 +23,7 @@ public class Vector {
     
     public Vector normalize() {
     	double length = length();
-    	return new Vector(x/length, y/length);
+    	return (length == 0) ? new Vector(1, 0) : new Vector(x/length, y/length);
     }
 
     public Vector plus(Vector other) {

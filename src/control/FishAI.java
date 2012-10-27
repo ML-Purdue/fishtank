@@ -34,7 +34,7 @@ public abstract class FishAI implements Runnable {
     	WorldState st = engine.getState(0);
     	int numFish = 0;
     	for (Fish f : myFish) {
-    		if (st.getState(f).isAlive()) numFish++;
+    		if (st.getState(f.id).isAlive()) numFish++;
     	}
     	return numFish;
     }

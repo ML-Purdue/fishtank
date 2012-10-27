@@ -1,24 +1,25 @@
 package environment;
 
-import java.util.Set;
+import java.util.Collection;
+
 
 public class WorldState {
     public long seqID;
-    protected java.util.Hashtable<Fish, FishState> fishStates;
+    
+    // Maps fish IDs to FishStates
+    protected java.util.Hashtable<Integer, FishState> fishStates;
 
-    // TODO: this is a security hole!
-    public Set<Fish> getFish() {
-    	return fishStates.keySet();
+    public Collection<FishState> getFish() {
+    	return fishStates.values();
     }
     
-    public FishState getState (Fish f) {
-    	return fishStates.get(f);
+    public FishState getState (int fish_id) {
+    	return fishStates.get(fish_id);
     }
 
     public WorldState(long ID) {
         seqID = ID;
 
-        fishStates = new java.util.Hashtable<Fish, FishState>();
+        fishStates = new java.util.Hashtable<Integer, FishState>();
     }
 }
-

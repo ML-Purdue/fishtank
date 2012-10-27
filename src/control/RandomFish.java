@@ -28,7 +28,7 @@ public class RandomFish extends FishAI {
 			current = engine.getState(prev.seqID);
 			ArrayList<Fish> removeList = new ArrayList<Fish>();
 			for (Fish f : myFish) {
-				FishState fs = current.getState(f);
+				FishState fs = current.getState(f.id);
 				if (!fs.isAlive()) {
 					removeList.add(f);
 					continue;
@@ -40,19 +40,21 @@ public class RandomFish extends FishAI {
 					else
 						directionX = -1;
 					if (Math.random() > .5)
-						directionY=-1;
+						directionY = -1;
 					else
-						directionY=1;
+						directionY = 1;
 					f.setSpeed(Math.random() * 5);
-					f.setRudderDirection(Math.toDegrees(Math.atan2(Math.random() * directionY,
-							Math.random() * directionX)));
+					f.setRudderDirection(Math.toDegrees(Math.atan2(
+							Math.random() * directionY, Math.random()
+									* directionX)));
 					i = 0;
 				} else
 					i++;
 
 				// Reproduce
 				if (fs.getNutrients() > 800) {
-					System.out.println("Fish " + f.getID()
+
+					System.out.println("Fish " + f.id
 							+ " requesting reproduction");
 					f.reproduce();
 				}
