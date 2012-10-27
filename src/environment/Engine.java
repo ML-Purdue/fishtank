@@ -1,4 +1,4 @@
- package environment;
+package environment;
 
 import java.awt.Color;
 import java.lang.reflect.InvocationTargetException;
@@ -8,6 +8,7 @@ import java.util.Random;
 
 import control.CircleFish;
 import control.FishAI;
+import control.RandomFish;
 
 public class Engine implements Runnable {
 	private WorldState backState;
@@ -34,37 +35,40 @@ public class Engine implements Runnable {
 		fishColors = new Hashtable<Integer, Color>();
 		aiTypes = new ArrayList<Class<? extends FishAI>>();
 		aiTypes.add(CircleFish.class);
+		aiTypes.add(RandomFish.class);
 	}
 
 	public WorldState getState(long ID) {
 		WorldState rtn = null;
 
-		//Busy-wait until a new state is available
-		while(frontState.seqID <= ID){
+		// Busy-wait until a new state is available
+		while (frontState.seqID <= ID) {
 			Thread.yield();
 		}
 
-		synchronized(stateLock) {
+		synchronized (stateLock) {
 			rtn = frontState;
 		}
 
 		return rtn;
 	}
-	
-	public int numFish () {
+
+	public int numFish() {
 		return numFish;
 	}
-	
+
 	public int numControllers() {
 		return controllers.size();
 	}
-	
+
 	public int maxFish() {
 		int max = 0;
-		for (FishAI ai : controllers) if (ai.myFish.size() > max)	max = ai.myFish.size();
+		for (FishAI ai : controllers)
+			if (ai.myFish.size() > max)
+				max = ai.myFish.size();
 		return max;
 	}
-	
+
 	public double maxNutrients() {
 		double max = 0;
 		for (FishAI ai : controllers) {
@@ -75,7 +79,8 @@ public class Engine implements Runnable {
 					nutSum += fs.getNutrients();
 				}
 			}
-			if (nutSum > max) max = nutSum;
+			if (nutSum > max)
+				max = nutSum;
 		}
 		return max;
 	}
@@ -85,7 +90,7 @@ public class Engine implements Runnable {
 	}
 
 	private void flipStates() {
-		synchronized(stateLock) {
+		synchronized (stateLock) {
 			frontState = backState;
 		}
 	}
@@ -131,22 +136,24 @@ public class Engine implements Runnable {
 	private void collideFish() {
 		for (FishState f1 : backState.fishStates.values()) {
 			for (FishState f2 : backState.fishStates.values()) {
-				if(f1 == f2 || !f1.alive || !f2.alive) continue;
+				if (f1 == f2 || !f1.alive || !f2.alive)
+					continue;
 
-				double dist = Math.sqrt(Math.pow((f1.position.x - f2.position.x), 2)
+				double dist = Math.sqrt(Math.pow(
+						(f1.position.x - f2.position.x), 2)
 						+ Math.pow((f1.position.y - f2.position.y), 2));
-				if(dist < f1.getRadius() + f2.getRadius()){
-					if(f1.nutrients > f2.nutrients){
+				if (dist < f1.getRadius() + f2.getRadius()) {
+					if (f1.nutrients > f2.nutrients) {
 						f2.alive = false;
 						f1.nutrients += (f2.nutrients * 0.8);
-					}else if(f2.nutrients > f1.nutrients){
+					} else if (f2.nutrients > f1.nutrients) {
 						f1.alive = false;
 						f2.nutrients += (f1.nutrients * 0.8);
-					}else{
-						if(Math.random() > 0.5){
+					} else {
+						if (Math.random() > 0.5) {
 							f2.alive = false;
 							f1.nutrients += (f2.nutrients * 0.8);
-						}else{
+						} else {
 							f1.alive = false;
 							f2.nutrients += (f1.nutrients * 0.8);
 						}
@@ -157,8 +164,8 @@ public class Engine implements Runnable {
 		}
 	}
 
-    private void decayFish() {
-    	for (FishState fs : backState.fishStates.values()) {
+	private void decayFish() {
+		for (FishState fs : backState.fishStates.values()) {
 			// -1 per fish per round
     		// In the future, we might want to make this dependent on fish size
     		fs.nutrients -= Rules.decay(fs);
@@ -291,29 +298,29 @@ public class Engine implements Runnable {
             iter_time = System.nanoTime();
 
         	System.out.println("iteration - state id is " + numStates);
+
 			backState = new WorldState(numStates++);
 
-			//Calculate the next state from frontState into the backState
+			// Calculate the next state from frontState into the backState
 			moveFish();
 
-            collideFish();
+			collideFish();
 
-            decayFish();
+			decayFish();
 
 			spawnFish();
 
-			//Push backState to be the new frontState
+			// Push backState to be the new frontState
 			flipStates();
 
-            iter_time = System.nanoTime() - iter_time;
-            if(iter_time < min_iter_time){
-                try {
-                    Thread.sleep((min_iter_time - iter_time) / 1000000L);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
+			iter_time = System.nanoTime() - iter_time;
+			if (iter_time < min_iter_time) {
+				try {
+					Thread.sleep((min_iter_time - iter_time) / 1000000L);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 	}
 }
-
