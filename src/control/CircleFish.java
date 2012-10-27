@@ -29,7 +29,7 @@ public class CircleFish extends FishAI {
 			
 			ArrayList<Fish> removeList = new ArrayList<Fish>();
 			for (Fish f : myFish) {
-				FishState fs = current.getState(f);
+				FishState fs = current.getState(f.id);
 				if (!fs.isAlive()) {
 					removeList.add(f);
 					continue;
@@ -49,7 +49,7 @@ public class CircleFish extends FishAI {
 				
 				// Reproduce
 				if (fs.getNutrients() > 800) {
-					System.out.println("Fish " + f.getID() + " requesting reproduction");
+					System.out.println("Fish " + f.id + " requesting reproduction");
 					f.reproduce();
 				}
 			}

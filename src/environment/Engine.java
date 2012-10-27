@@ -22,6 +22,7 @@ public class Engine implements Runnable {
 	private int typeIndex = 0;
 	private int spawnRequest = 0;
 	private int numFish = 0;
+	private Hashtable<Integer, Color> fishColors;
 
 	public Engine() {
 		frontState = new WorldState(0);
@@ -30,6 +31,7 @@ public class Engine implements Runnable {
 		aiThreads = new Hashtable<FishAI, Thread>();
 		rng = new Random();
 		reproducers = new ArrayList<Fish>();
+		fishColors = new Hashtable<Integer, Color>();
 		aiTypes = new ArrayList<Class<? extends FishAI>>();
 		aiTypes.add(CircleFish.class);
 	}
@@ -68,7 +70,7 @@ public class Engine implements Runnable {
 		for (FishAI ai : controllers) {
 			double nutSum = 0;
 			for (Fish f : ai.myFish) {
-				FishState fs = frontState.getState(f);
+				FishState fs = frontState.getState(f.id);
 				if (fs.isAlive()) {
 					nutSum += fs.getNutrients();
 				}
@@ -76,6 +78,10 @@ public class Engine implements Runnable {
 			if (nutSum > max) max = nutSum;
 		}
 		return max;
+	}
+	
+	public Color getColor(int fish_id) {
+		return fishColors.get(fish_id);
 	}
 
 	private void flipStates() {
@@ -88,7 +94,7 @@ public class Engine implements Runnable {
 		for (FishAI ai : controllers) {
 			for (Fish f : ai.myFish) {
 				synchronized (f.requested_state) {
-					FishState old_fs = frontState.getState(f);
+					FishState old_fs = frontState.getState(f.id);
 					FishState requested_fs = f.requested_state;
 					Vector pos = old_fs.getPosition();
 					Vector dir = requested_fs.getRudderVector();
@@ -98,6 +104,7 @@ public class Engine implements Runnable {
 					}
 
 					double speed = requested_fs.getSpeed();
+					speed = speed > Rules.maxSpeed(old_fs) ? Rules.maxSpeed(old_fs) : speed < 0 ? 0 : speed;
 					double x = pos.x + speed * dir.x;
 					double y = pos.y + speed * dir.y;
 
@@ -115,7 +122,7 @@ public class Engine implements Runnable {
 					new_fs.speed = speed;
 					//System.out.println("Moving fish " + f.id + " to " + new_fs.getPosition() +
 					//", old pos was " + pos + ", speed was " + speed + ", dir was " + dir);
-					backState.fishStates.put(f, new_fs);
+					backState.fishStates.put(f.id, new_fs);
 				}
 			}
 		}
@@ -174,24 +181,25 @@ public class Engine implements Runnable {
         // Handle reproduction requests
     	synchronized(reproducers){
             for (Fish parent : reproducers) {
-				System.out.println("Reproducing fish " + parent.getID());
-            	FishState ps = backState.getState(parent);
+				System.out.println("Reproducing fish " + parent.id);
+            	FishState ps = backState.getState(parent.id);
             	if (!ps.isAlive()) {
             		continue;
             	}
-            	backState.getState(parent).nutrients *= .4;		// Each baby fish gets 40% of the original food
+            	backState.getState(parent.id).nutrients *= .4;		// Each baby fish gets 40% of the original food
             	
             	// Child fish should spawn behind the parent fish,
             	// facing the opposite direction (to prevent accidental eating)
-            	FishState cs = ps.clone();
+            	Fish child = new Fish(parent.controller);
+            	FishState cs = ps.copy(child.id);
             	cs.position = ps.position.plus(ps.heading.times(-2 * ps.getRadius()));
             	cs.heading = ps.heading.times(-1);
             	
-            	Fish child = new Fish(parent.controller);
             	child.requested_state = cs.clone();
                 
                 parent.controller.myFish.add(child);
-                backState.fishStates.put(child, cs);
+                backState.fishStates.put(child.id, cs);
+                fishColors.put(child.id, child.controller.color);
             }
             reproducers.clear();
         }
@@ -225,14 +233,15 @@ public class Engine implements Runnable {
     				double nutrients = Rules.startingNutrients / ai.startFish;
     				for (int i = 0; i < ai.startFish; i++) {
     					Fish f = new Fish(ai);
-    					FishState fs = new FishState();
+    					FishState fs = new FishState(f.id);
     					fs.nutrients = nutrients;
     					fs.heading = new Vector(rng.nextDouble(), rng.nextDouble()).normalize();
     					fs.position = new Vector(rng.nextInt(Rules.xWidth - 150)+75,
     							rng.nextInt(Rules.yWidth - 150) + 75);
     					f.requested_state = fs.clone();
     					ai.myFish.add(f);
-    					backState.fishStates.put(f, fs);
+    					fishColors.put(f.id, ai.color);
+    					backState.fishStates.put(f.id, fs);
     				}
 
     				// Start the AI
