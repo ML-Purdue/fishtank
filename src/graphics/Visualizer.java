@@ -91,12 +91,11 @@ public class Visualizer extends JFrame implements Runnable, MouseMotionListener 
         if (state == null) {
                 return;
         }
-        for (Fish fish : state.getFish()) {
-        	FishState fs = state.getState(fish);
+        for (FishState fs : state.getFish()) {
             if(fs.isAlive()){
                 Vector pos = fs.getPosition();
                 // Draw tail and outline according to speed
-                int tailBrightness = (int)((double)fs.getSpeed() / Rules.maxSpeed * 255);
+                int tailBrightness = (int)((double)fs.getSpeed() / Rules.MAX_SPEED * 255);
                 bufferGraphics.setColor(new Color(tailBrightness, tailBrightness, tailBrightness));
                 bufferGraphics.drawLine((int)pos.x, (int)pos.y,
                 		(int)(pos.x - fs.getRudderVector().x * fs.getRadius() * 2),
@@ -104,7 +103,7 @@ public class Visualizer extends JFrame implements Runnable, MouseMotionListener 
                 bufferGraphics.fillOval((int)pos.x - fs.getRadius(),
                                         (int)pos.y - fs.getRadius(),
                                         2 * fs.getRadius(), 2 * fs.getRadius());
-                bufferGraphics.setColor(fish.getColor());
+                bufferGraphics.setColor(fishtank.getColor(fs.fish_id));
                 bufferGraphics.fillOval((int)pos.x - fs.getRadius() + 1,
                                         (int)pos.y - fs.getRadius() + 1,
                                         2 * fs.getRadius() - 2,
@@ -112,7 +111,7 @@ public class Visualizer extends JFrame implements Runnable, MouseMotionListener 
             }
             if (fs.getPosition().minus(mousePosition).length() < fs.getRadius()) {
             	fishUnderMouse = fs;
-            	fumID = fish.getID();
+            	fumID = fs.fish_id;
             }
         }
         

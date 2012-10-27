@@ -6,7 +6,7 @@ import control.FishAI;
 
 public class Fish {
 	protected FishState requested_state;
-	protected int id;
+	public final int id;
 	public static int max_id;
 	protected FishAI controller;
 	
@@ -27,15 +27,15 @@ public class Fish {
 	// constructor
 	public Fish(FishAI controller) {
 		this.controller = controller;
-		requested_state = new FishState();
 		id = ++max_id;
+		requested_state = new FishState(id);
 	}
 
 	/* fish action methods */
 
 	// degrees are standard math textbook: from the right side counterclockwise
 	public FishCode setRudderDirection(double degrees) {
-		Vector direction = new Vector(Math.cos(degrees * 2 * Math.PI / 360), Math.sin(degrees * 2 * Math.PI / 360));
+		Vector direction = new Vector(Math.cos(Math.toRadians(degrees)), Math.sin(Math.toRadians(degrees)));
 		synchronized (requested_state) {
 			requested_state.heading = direction;
 		}
@@ -54,17 +54,9 @@ public class Fish {
 	// set the fish's speed
 	public FishCode setSpeed(double speed) {
 		synchronized(requested_state) {
-			if (speed > Rules.maxSpeed) {
-				requested_state.speed = Rules.maxSpeed;
-				return FishCode.OUT_OF_BOUNDS;
-			} else if (speed < 0) {
-				requested_state.speed = 0;
-				return FishCode.OUT_OF_BOUNDS;
-			} else {
-				requested_state.speed = speed;
-				return FishCode.OK;
-			}
+			requested_state.speed = speed;
 		}
+		return FishCode.OK;
 	}
 
 	// reproduce the fish
@@ -77,10 +69,6 @@ public class Fish {
 	public FishCode eat() {
 		//TODO
 		return FishCode.NOT_DEFINED;
-	}
-	
-	public int getID () {
-		return id;
 	}
 	
 	public Color getColor () {

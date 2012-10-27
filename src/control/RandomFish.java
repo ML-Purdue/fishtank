@@ -9,11 +9,12 @@ import environment.Rules;
 import environment.Vector;
 import environment.WorldState;
 
-public class CircleFish extends FishAI {
+public class RandomFish extends FishAI {
 	//private HashMap<Fish, Vector> centers;
-
-	public CircleFish(Engine engine) {
+	private int i;
+	public RandomFish(Engine engine) {
 		super(engine, 3);
+		i=0;
 		//centers = new HashMap<Fish, Vector>();
 	}
 
@@ -34,18 +35,18 @@ public class CircleFish extends FishAI {
 					removeList.add(f);
 					continue;
 				}
-				
-				f.setSpeed(speed);
-				Vector heading = fs.getRudderVector();
-				if (fs.getPosition().x > Rules.tankWidth - 10) {
-					f.setRudderDirection(-1, 0);
-				} else if (fs.getPosition().x < 10) {
-					f.setRudderDirection(1, 0);
-					
-				} else if (!heading.equals(new Vector(1, 0)) && !heading.equals(new Vector(-1, 0))) {
-					if (heading.x > 0) f.setRudderDirection(1, 0);
-					else f.setRudderDirection(-1, 0);
+				if(i==10){
+					int direction;
+					if(Math.random()>.5)
+						direction=1;
+					else
+						direction = -1;					
+					f.setSpeed(Math.random()*5);
+					f.setRudderDirection(Math.random()*direction, Math.random()*direction);
+					i=0;
 				}
+				else
+					i++;
 				
 				// Reproduce
 				if (fs.getNutrients() > 800) {
