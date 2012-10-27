@@ -1,6 +1,5 @@
 package environment;
 
-import java.util.TreeMap;
 import java.util.Set;
 
 public class WorldState {
