@@ -36,10 +36,27 @@ public class Engine implements Runnable {
 		fishColors = new Hashtable<Integer, Color>();
 		aiTypes = new ArrayList<Class<? extends FishAI>>();
 		aiTypes.add(CircleFish.class);
+		aiTypes.add(RandomFish.class);
+
 		flipStates();
 		generateFood(foodCount);
-		aiTypes.add(RandomFish.class);
 	}
+	
+	public void printState() {
+		System.out.println(controllers.size() + "controllers");
+		for (int i = 0; i < controllers.size(); i++) {
+			System.out.println("Controller " + i);
+			for (Fish f : controllers.get(i).myFish) {
+				System.out.println("Fish " + f.id);
+			}
+		}
+	}
+
+
+    /* Temporary function - will need to remove later */
+    public synchronized void add () {
+    	spawnRequest++;
+    }
 
 	public WorldState getState(long ID) {
 		WorldState rtn = null;
@@ -55,46 +72,21 @@ public class Engine implements Runnable {
 
 		return rtn;
 	}
-
-	public int numFish() {
-		return numFish;
-	}
-
-	public int numControllers() {
-		return controllers.size();
-	}
-
-	public int maxFish() {
-		int max = 0;
-		for (FishAI ai : controllers)
-			if (ai.myFish.size() > max)
-				max = ai.myFish.size();
-		return max;
-	}
-
-	public double maxNutrients() {
-		double max = 0;
-		for (FishAI ai : controllers) {
-			double nutSum = 0;
-			for (Fish f : ai.myFish) {
-				FishState fs = frontState.getState(f.id);
-				if (fs.isAlive()) {
-					nutSum += fs.getNutrients();
-				}
-			}
-			if (nutSum > max)
-				max = nutSum;
-		}
-		return max;
-	}
 	
 	public Color getColor(int fish_id) {
 		return fishColors.get(fish_id);
 	}
+	
+	protected void requestRepro (Fish f) {
+    	synchronized(reproducers) {
+    		reproducers.add(f);
+    	}
+    }
 
-	private void flipStates() {
-		synchronized (stateLock) {
-			frontState = backState;
+	
+	private void generateFood(int n) {
+		for (int i = 0; i < n; i++) {
+			backState.food.add(new Food(new Vector(rng.nextDouble() * Rules.tankWidth, rng.nextDouble() * Rules.tankHeight), 100));
 		}
 	}
 
@@ -134,13 +126,7 @@ public class Engine implements Runnable {
 				}
 			}
 		}
-	}
-	
-	private void generateFood(int n) {
-		for (int i = 0; i < n; i++) {
-			backState.food.add(new Food(new Vector(rng.nextDouble() * Rules.tankWidth, rng.nextDouble() * Rules.tankHeight), 100));
-		}
-	}
+	}	
 	
 	private void eatFood() {
 		for (FishState fishState : backState.fishStates.values()) {
@@ -196,15 +182,9 @@ public class Engine implements Runnable {
     			fs.alive = false;
     		}
     	}
-    	
-    	// TODO: remove dead FishAIs.
     }
     
-    protected void requestRepro (Fish f) {
-    	synchronized(reproducers) {
-    		reproducers.add(f);
-    	}
-    }
+    
 
     private void spawnFish() {
         // Handle reproduction requests
@@ -280,32 +260,53 @@ public class Engine implements Runnable {
     				ai_thread.start();
 
     			} catch (IllegalArgumentException e) {
-    				// TODO Auto-generated catch block
     				e.printStackTrace();
     			} catch (SecurityException e) {
-    				// TODO Auto-generated catch block
     				e.printStackTrace();
     			} catch (InstantiationException e) {
-    				// TODO Auto-generated catch block
     				e.printStackTrace();
     			} catch (IllegalAccessException e) {
-    				// TODO Auto-generated catch block
     				e.printStackTrace();
     			} catch (InvocationTargetException e) {
-    				// TODO Auto-generated catch block
     				e.printStackTrace();
     			} catch (NoSuchMethodException e) {
-    				// TODO Auto-generated catch block
     				e.printStackTrace();
     			}
     		}
     	}
     }
-
-    /* Temporary function - will need to remove later */
-    public synchronized void add () {
-    	spawnRequest++;
+    
+    private void computeStats() {
+    	// Which controller has the most fish?
+    	int maxFish = 0;
+    	for (FishAI ai : controllers)
+    		if (ai.myFish.size() > maxFish)
+    			maxFish = ai.myFish.size();
+    	backState.maxFish = maxFish;
+    	
+    	double maxNut = 0;
+    	for (FishAI ai : controllers) {
+    		double nutSum = 0;
+    		for (Fish f : ai.myFish) {
+    			FishState fs = backState.getState(f.id);
+    			if (fs.isAlive()) {
+    				nutSum += fs.getNutrients();
+    			}
+    		}
+    		if (nutSum > maxNut)
+    			maxNut = nutSum;
+    	}
+    	backState.maxNutrients = maxNut;
+    	
+    	backState.numFish = numFish;
+    	backState.numControllers = controllers.size();
     }
+
+	private void flipStates() {
+		synchronized (stateLock) {
+			frontState = backState;
+		}
+	}
 
     public void run() {
         long iter_time = 0;
@@ -319,7 +320,7 @@ public class Engine implements Runnable {
         while(true) {
             iter_time = System.nanoTime();
 
-        	System.out.println("iteration - state id is " + numStates);
+        	//System.out.println("iteration - state id is " + numStates);
 
 			backState = new WorldState(numStates++);
 			backState.food = frontState.food;
@@ -334,6 +335,8 @@ public class Engine implements Runnable {
 			decayFish();
 
 			spawnFish();
+			
+			computeStats();
 
 			// Push backState to be the new frontState
 			flipStates();

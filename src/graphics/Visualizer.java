@@ -128,9 +128,9 @@ public class Visualizer extends JFrame implements Runnable, MouseMotionListener 
         			5, buffer.getHeight() - tooltipBottomMargin);
         } else {
         	bufferGraphics.drawString(String.format("Frame %d, Fish %d, Controllers %d, Max fish %d, Max nut %.2f",
-        				state.seqID, fishtank.numFish(),
-        				fishtank.numControllers(),
-        				fishtank.maxFish(), fishtank.maxNutrients()),
+        				state.seqID, state.getNumFish(),
+        				state.getNumControllers(),
+        				state.getMaxFish(), state.getMaxNutrients()),
         			5, buffer.getHeight() - tooltipBottomMargin);
         }
         
@@ -165,6 +165,8 @@ public class Visualizer extends JFrame implements Runnable, MouseMotionListener 
                 input = in.nextLine();
                 for(int i = 0; i < Integer.parseInt(input); i++)
                     fishtank.add();
+            } else if (input.equals("print")) {
+            	fishtank.printState();
             }
         }
     }
