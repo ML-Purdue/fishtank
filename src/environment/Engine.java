@@ -15,7 +15,7 @@ public class Engine implements Runnable {
 	private WorldState frontState;
 	private Object stateLock;
 	private ArrayList<FishAI> controllers;
-	private Hashtable<FishAI, Thread> aiThreads;
+	private Hashtable<Integer, Thread> aiThreads;
 	private ArrayList<Fish> reproducers;
 	private Random rng;
 	private int roundsUnderQuota = 0;
@@ -30,7 +30,7 @@ public class Engine implements Runnable {
 		backState = new WorldState(0);
 		stateLock = new Object();
 		controllers = new ArrayList<FishAI>();
-		aiThreads = new Hashtable<FishAI, Thread>();
+		aiThreads = new Hashtable<Integer, Thread>();
 		rng = new Random();
 		reproducers = new ArrayList<Fish>();
 		fishColors = new Hashtable<Integer, Color>();
@@ -44,9 +44,9 @@ public class Engine implements Runnable {
 	
 	public void printState() {
 		System.out.println(controllers.size() + "controllers");
-		for (int i = 0; i < controllers.size(); i++) {
-			System.out.println("Controller " + i);
-			for (Fish f : controllers.get(i).myFish) {
+		for (FishAI ai : controllers) {
+			System.out.println("Controller " + ai.controller_id );
+			for (Fish f : ai.myFish) {
 				System.out.println("Fish " + f.id);
 			}
 		}
@@ -56,6 +56,10 @@ public class Engine implements Runnable {
     /* Temporary function - will need to remove later */
     public synchronized void add () {
     	spawnRequest++;
+    }
+    
+    public long getCurrentStateID() {
+    	return frontState.seqID;
     }
 
 	public WorldState getState(long ID) {
@@ -183,8 +187,6 @@ public class Engine implements Runnable {
     		}
     	}
     }
-    
-    
 
     private void spawnFish() {
         // Handle reproduction requests
@@ -256,7 +258,7 @@ public class Engine implements Runnable {
     				// Start the AI
     				controllers.add(ai);
     				Thread ai_thread = new Thread(ai);
-    				aiThreads.put(ai, ai_thread);
+    				aiThreads.put(ai.controller_id, ai_thread);
     				ai_thread.start();
 
     			} catch (IllegalArgumentException e) {
@@ -273,6 +275,16 @@ public class Engine implements Runnable {
     				e.printStackTrace();
     			}
     		}
+    	}
+    }
+    
+    /*
+     * Clean up dead objects, etc.
+     */
+    private void cleanHouse() {
+    	for (int i = 0; i < controllers.size(); i++) {
+    		if (!aiThreads.get(controllers.get(i).controller_id).isAlive())
+    			controllers.remove(i);
     	}
     }
     
@@ -335,6 +347,8 @@ public class Engine implements Runnable {
 			decayFish();
 
 			spawnFish();
+			
+			cleanHouse();
 			
 			computeStats();
 
