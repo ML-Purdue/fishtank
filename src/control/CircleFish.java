@@ -7,12 +7,8 @@ import environment.Fish;
 import environment.FishState;
 import environment.Rules;
 import environment.Vector;
-import environment.WorldState;
 
 public class CircleFish extends FishAI {
-	WorldState prev = null;
-	WorldState current = null;
-	
 	int speed = 0;
 	boolean up = true;
 
@@ -23,17 +19,9 @@ public class CircleFish extends FishAI {
 
 	@Override
 	public void iterate() {
-		prev = current;
-		if (prev == null) current = engine.getState(0);
-		else current = engine.getState(prev.seqID);
-
 		ArrayList<Fish> removeList = new ArrayList<Fish>();
 		for (Fish f : myFish) {
 			FishState fs = current.getState(f.id);
-			if (!fs.isAlive()) {
-				removeList.add(f);
-				continue;
-			}
 
 			f.setSpeed(speed);
 			Vector heading = fs.getRudderVector();
@@ -52,10 +40,6 @@ public class CircleFish extends FishAI {
 				System.out.println("Fish " + f.id + " requesting reproduction");
 				f.reproduce();
 			}
-		}
-		// Get rid of dead fish
-		for (Fish f : removeList) {
-			myFish.remove(f);
 		}
 
 		// Set the speed for the next round

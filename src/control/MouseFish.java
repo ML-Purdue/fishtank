@@ -9,7 +9,6 @@ import environment.Rules;
 import environment.WorldState;
 
 public class MouseFish extends FishAI {
-	WorldState current = null;
 	int speed = 0;
 	boolean up = true;
 	private int i;
@@ -22,7 +21,6 @@ public class MouseFish extends FishAI {
 
 	@Override
 	public void iterate() {
-		current = engine.getState(current != null ? current.seqID : 0);
 		for (Fish f : myFish) {
 			FishState fs = current.getState(f.id);
 			f.setRudderDirection(current.mousePosition.x - fs.getPosition().x, current.mousePosition.y - fs.getPosition().y);

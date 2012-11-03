@@ -5,11 +5,8 @@ import java.util.ArrayList;
 import environment.Engine;
 import environment.Fish;
 import environment.FishState;
-import environment.WorldState;
 
 public class RandomFish extends FishAI {
-	WorldState prev = null;
-	WorldState current = null;
 	int speed = 0;
 	boolean up = true;
 	private int i;
@@ -22,17 +19,8 @@ public class RandomFish extends FishAI {
 
 	@Override
 	public void iterate() {
-		
-		prev = current;
-		if (prev == null) current = engine.getState(0);
-		else current = engine.getState(prev.seqID);
-		ArrayList<Fish> removeList = new ArrayList<Fish>();
 		for (Fish f : myFish) {
 			FishState fs = current.getState(f.id);
-			if (!fs.isAlive()) {
-				removeList.add(f);
-				continue;
-			}
 			if (i == 10) {
 				int directionX, directionY;
 				if (Math.random() > .5)
@@ -58,10 +46,6 @@ public class RandomFish extends FishAI {
 						+ " requesting reproduction");
 				f.reproduce();
 			}
-		}
-		// Get rid of dead fish
-		for (Fish f : removeList) {
-			myFish.remove(f);
 		}
 
 		// Set the speed for the next round

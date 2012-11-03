@@ -29,6 +29,7 @@ public class Engine implements Runnable {
 	private int numFish = 0;
 	private int foodCount = 10;
 	private Hashtable<Integer, Color> fishColors;
+	private boolean hyperspeed = false;
 	private Visualizer visualizer;
 
 	public Engine(Visualizer visualizer) {
@@ -53,10 +54,16 @@ public class Engine implements Runnable {
 		System.out.println(controllers.size() + "controllers");
 		for (FishAI ai : controllers) {
 			System.out.println("Controller " + ai.controller_id );
-			for (Fish f : ai.myFish) {
-				System.out.println("Fish " + f.id);
+			synchronized(ai.myFish) {
+				for (Fish f : ai.myFish) {
+					System.out.println("Fish " + f.id);
+				}
 			}
 		}
+	}
+	
+	public void toggleHyperspeed() {
+		hyperspeed = !hyperspeed;
 	}
 
 
@@ -103,37 +110,39 @@ public class Engine implements Runnable {
 
 	private void moveFish() {
 		for (FishAI ai : controllers) {
-			for (Fish f : ai.myFish) {
-				synchronized (f.requested_state) {
-					FishState old_fs = frontState.getState(f.id);
-					FishState requested_fs = f.requested_state;
-					Vector pos = old_fs.getPosition();
-					Vector dir = requested_fs.getRudderVector();
+			synchronized(ai.myFish) {
+				for (Fish f : ai.myFish) {
+					synchronized (f.requested_state) {
+						FishState old_fs = frontState.getState(f.id);
+						FishState requested_fs = f.requested_state;
+						Vector pos = old_fs.getPosition();
+						Vector dir = requested_fs.getRudderVector();
 
-					if (old_fs == null || requested_fs == null) {
-						System.err.println("Oh noes!");
+						if (old_fs == null || requested_fs == null) {
+							System.err.println("Oh noes!");
+						}
+
+						double speed = requested_fs.getSpeed();
+						speed = speed > Rules.maxSpeed(old_fs) ? Rules.maxSpeed(old_fs) : speed < 0 ? 0 : speed;//clamp
+						double x = pos.x + speed * dir.x;
+						double y = pos.y + speed * dir.y;
+
+						// TODO: better collision handling
+						if (x > Rules.tankWidth || x < 0) {
+							x = pos.x;
+						}
+						if (y > Rules.tankHeight || y < 0) {
+							y = pos.y;
+						}
+
+						FishState new_fs = old_fs.clone();
+						new_fs.position = new Vector(x, y);
+						new_fs.heading = dir;
+						new_fs.speed = speed;
+						//System.out.println("Moving fish " + f.id + " to " + new_fs.getPosition() +
+						//", old pos was " + pos + ", speed was " + speed + ", dir was " + dir);
+						backState.fishStates.put(f.id, new_fs);
 					}
-
-					double speed = requested_fs.getSpeed();
-					speed = speed > Rules.maxSpeed(old_fs) ? Rules.maxSpeed(old_fs) : speed < 0 ? 0 : speed;//clamp
-					double x = pos.x + speed * dir.x;
-					double y = pos.y + speed * dir.y;
-
-					// TODO: better collision handling
-					if (x > Rules.tankWidth || x < 0) {
-						x = pos.x;
-					}
-					if (y > Rules.tankHeight || y < 0) {
-						y = pos.y;
-					}
-
-					FishState new_fs = old_fs.clone();
-					new_fs.position = new Vector(x, y);
-					new_fs.heading = dir;
-					new_fs.speed = speed;
-					//System.out.println("Moving fish " + f.id + " to " + new_fs.getPosition() +
-					//", old pos was " + pos + ", speed was " + speed + ", dir was " + dir);
-					backState.fishStates.put(f.id, new_fs);
 				}
 			}
 		}
@@ -198,26 +207,30 @@ public class Engine implements Runnable {
     private void spawnFish() {
         // Handle reproduction requests
     	synchronized(reproducers){
-            for (Fish parent : reproducers) {
-				System.out.println("Reproducing fish " + parent.id);
-            	FishState ps = backState.getState(parent.id);
-            	if (!ps.isAlive()) {
-            		continue;
-            	}
-            	backState.getState(parent.id).nutrients *= .4;		// Each baby fish gets 40% of the original food
-            	
-            	// Child fish should spawn behind the parent fish,
-            	// facing the opposite direction (to prevent accidental eating)
-            	Fish child = new Fish(parent.controller);
-            	FishState cs = ps.copy(child.id);
-            	cs.position = ps.position.plus(ps.heading.times(-2 * ps.getRadius()));
-            	cs.heading = ps.heading.times(-1);
-            	
-            	child.requested_state = cs.clone();
-                
-                parent.controller.myFish.add(child);
-                backState.fishStates.put(child.id, cs);
-                fishColors.put(child.id, child.controller.color);
+    		for (Fish parent : reproducers) {
+    			synchronized(parent.controller.myFish) {
+    				System.out.println("Reproducing fish " + parent.id);
+    				FishState ps = backState.getState(parent.id);
+    				if (ps == null || !ps.isAlive()) {
+    					continue;
+    				}
+    				backState.getState(parent.id).nutrients *= .4;		// Each baby fish gets 40% of the original food
+
+    				// Child fish should spawn behind the parent fish,
+    				// facing the opposite direction (to prevent accidental eating)
+    				Fish child = new Fish(parent.controller, this);
+    				FishState cs = ps.copy(child.id);
+    				cs.position = ps.position.plus(ps.heading.times(-2 * ps.getRadius()));
+    				cs.heading = ps.heading.times(-1);
+
+    				child.requested_state = cs.clone();
+
+
+    				parent.controller.myFish.add(child);
+
+    				backState.fishStates.put(child.id, cs);
+    				fishColors.put(child.id, child.controller.color);
+    			}
             }
             reproducers.clear();
         }
@@ -250,7 +263,7 @@ public class Engine implements Runnable {
     				// Create all the fish, add to the controller and to the backstate
     				double nutrients = Rules.startingNutrients;
     				for (int i = 0; i < ai.startFish; i++) {
-    					Fish f = new Fish(ai);
+    					Fish f = new Fish(ai, this);
     					FishState fs = new FishState(f.id, ai.controller_id);
     					fs.nutrients = nutrients;
     					fs.heading = new Vector(rng.nextDouble(), rng.nextDouble()).normalize();
@@ -306,10 +319,12 @@ public class Engine implements Runnable {
     	double maxNut = 0;
     	for (FishAI ai : controllers) {
     		double nutSum = 0;
-    		for (Fish f : ai.myFish) {
-    			FishState fs = backState.getState(f.id);
-    			if (fs.isAlive()) {
-    				nutSum += fs.getNutrients();
+    		synchronized(ai.myFish) {
+    			for (Fish f : ai.myFish) {
+    				FishState fs = backState.getState(f.id);
+    				if (fs.isAlive()) {
+    					nutSum += fs.getNutrients();
+    				}
     			}
     		}
     		if (nutSum > maxNut)
@@ -363,10 +378,12 @@ public class Engine implements Runnable {
 			// Push backState to be the new frontState
 			flipStates();
 
+			long mit = min_iter_time;
+			if (hyperspeed) mit /= 10;
 			iter_time = System.nanoTime() - iter_time;
-			if (iter_time < min_iter_time) {
+			if (iter_time < mit) {
 				try {
-					Thread.sleep((min_iter_time - iter_time) / 1000000L);
+					Thread.sleep((mit - iter_time) / 1000000L);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
