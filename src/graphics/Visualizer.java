@@ -125,7 +125,6 @@ public class Visualizer extends JFrame implements Runnable, MouseMotionListener 
    
         //Draw the fish
 
-        // TODO draw fish features like rudder
         FishState fishUnderMouse = null;
         if (state == null) {
                 return;
@@ -133,9 +132,9 @@ public class Visualizer extends JFrame implements Runnable, MouseMotionListener 
         
         fishUnderMouse = drawFish();
         
-        drawTooltip(fishUnderMouse);
-        
         drawFood();
+
+        drawTooltip(fishUnderMouse);
 
         g.drawImage(buffer, 0, 0, this);
 
