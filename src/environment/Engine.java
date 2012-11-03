@@ -1,5 +1,7 @@
 package environment;
 
+import graphics.Visualizer;
+
 import java.awt.Color;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -8,6 +10,7 @@ import java.util.Random;
 
 import control.CircleFish;
 import control.FishAI;
+import control.MouseFish;
 import control.RandomFish;
 
 public class Engine implements Runnable {
@@ -25,8 +28,9 @@ public class Engine implements Runnable {
 	private int numFish = 0;
 	private int foodCount = 10;
 	private Hashtable<Integer, Color> fishColors;
+	private Visualizer visualizer;
 
-	public Engine() {
+	public Engine(Visualizer visualizer) {
 		backState = new WorldState(0);
 		stateLock = new Object();
 		controllers = new ArrayList<FishAI>();
@@ -35,8 +39,8 @@ public class Engine implements Runnable {
 		reproducers = new ArrayList<Fish>();
 		fishColors = new Hashtable<Integer, Color>();
 		aiTypes = new ArrayList<Class<? extends FishAI>>();
-		aiTypes.add(CircleFish.class);
-		aiTypes.add(RandomFish.class);
+		aiTypes.add(MouseFish.class);
+		this.visualizer = visualizer;
 
 		flipStates();
 		generateFood(foodCount);
@@ -336,6 +340,7 @@ public class Engine implements Runnable {
 
 			backState = new WorldState(numStates++);
 			backState.food = frontState.food;
+			backState.mousePosition = visualizer.mousePosition.clone();
 
 			// Calculate the next state from frontState into the backState
 			moveFish();
