@@ -24,12 +24,12 @@ public class Visualizer extends JFrame implements Runnable, MouseMotionListener 
     private static Engine fishtank;
     private Thread engineThread;
     private WorldState state;
-    private Vector mousePosition;
+    public Vector mousePosition;
     private Color background = new Color(134, 177, 225);
 
     public Visualizer() {
         //Set up the fishtank
-    	fishtank = new Engine();
+    	fishtank = new Engine(this);
         buffer = new BufferedImage(Rules.tankWidth, Rules.tankHeight, BufferedImage.TYPE_INT_RGB);
         bufferGraphics = (Graphics2D)buffer.getGraphics();
         bufferGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);

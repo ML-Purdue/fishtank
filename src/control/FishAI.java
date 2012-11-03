@@ -50,6 +50,7 @@ public abstract class FishAI implements Runnable {
     			for (Fish f : removeList) {
     				myFish.remove(f);
     			}
+    			
     			iterate();
     		}
     	}

@@ -1,5 +1,6 @@
 package environment;
 
+import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -16,6 +17,8 @@ public class WorldState {
     protected int numControllers;
     protected int maxFish;
     protected double maxNutrients;
+    // TODO security problem
+    public Vector mousePosition;
 
     public Collection<FishState> getFish() {
     	return fishStates.values();
