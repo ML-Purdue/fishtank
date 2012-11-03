@@ -28,7 +28,7 @@ public class Fish {
 	public Fish(FishAI controller) {
 		this.controller = controller;
 		id = ++max_id;
-		requested_state = new FishState(id);
+		requested_state = new FishState(id, controller.controller_id);
 	}
 
 	/* fish action methods */

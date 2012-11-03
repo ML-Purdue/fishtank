@@ -40,9 +40,10 @@ public class Engine implements Runnable {
 		reproducers = new ArrayList<Fish>();
 		fishColors = new Hashtable<Integer, Color>();
 		aiTypes = new ArrayList<Class<? extends FishAI>>();
-		aiTypes.add(MouseFish.class);
-		this.visualizer = visualizer;
 		aiTypes.add(BearFish.class);
+		//aiTypes.add(RandomFish.class);
+		//aiTypes.add(CircleFish.class);
+		this.visualizer = visualizer;
 
 		flipStates();
 		generateFood(foodCount);
@@ -188,7 +189,7 @@ public class Engine implements Runnable {
     		// In the future, we might want to make this dependent on fish size
     		fs.nutrients -= Rules.decay(fs);
 
-    		if (fs.nutrients <= 0) {
+    		if (fs.nutrients < 10) {
     			fs.alive = false;
     		}
     	}
@@ -247,10 +248,10 @@ public class Engine implements Runnable {
     				ai.color = new Color(rng.nextInt(156) + 100, rng.nextInt(156) + 100, rng.nextInt(156) + 100);
 
     				// Create all the fish, add to the controller and to the backstate
-    				double nutrients = Rules.startingNutrients / ai.startFish;
+    				double nutrients = Rules.startingNutrients;
     				for (int i = 0; i < ai.startFish; i++) {
     					Fish f = new Fish(ai);
-    					FishState fs = new FishState(f.id);
+    					FishState fs = new FishState(f.id, ai.controller_id);
     					fs.nutrients = nutrients;
     					fs.heading = new Vector(rng.nextDouble(), rng.nextDouble()).normalize();
     					fs.position = new Vector(rng.nextInt(Rules.tankWidth - 150)+75,
