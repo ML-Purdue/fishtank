@@ -41,6 +41,13 @@ public class Fish {
 		}
 		return FishCode.OK;
 	}
+	
+	public FishCode setRudderDirection(Vector v) {
+		synchronized(requested_state) {
+			requested_state.heading = v.normalize();
+			return FishCode.OK;
+		}
+	}
 
 	// set rudder direction using the given two-dimensional vector
 	public FishCode setRudderDirection(double x, double y) {

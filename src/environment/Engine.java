@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Random;
 
+import control.BearFish;
 import control.CircleFish;
 import control.FishAI;
 import control.MouseFish;
@@ -41,6 +42,7 @@ public class Engine implements Runnable {
 		aiTypes = new ArrayList<Class<? extends FishAI>>();
 		aiTypes.add(MouseFish.class);
 		this.visualizer = visualizer;
+		aiTypes.add(BearFish.class);
 
 		flipStates();
 		generateFood(foodCount);
@@ -112,7 +114,7 @@ public class Engine implements Runnable {
 					}
 
 					double speed = requested_fs.getSpeed();
-					speed = speed > Rules.maxSpeed(old_fs) ? Rules.maxSpeed(old_fs) : speed < 0 ? 0 : speed;
+					speed = speed > Rules.maxSpeed(old_fs) ? Rules.maxSpeed(old_fs) : speed < 0 ? 0 : speed;//clamp
 					double x = pos.x + speed * dir.x;
 					double y = pos.y + speed * dir.y;
 
