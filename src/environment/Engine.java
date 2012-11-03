@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Random;
 
+import control.BearFish;
 import control.CircleFish;
 import control.FishAI;
 import control.RandomFish;
@@ -37,6 +38,7 @@ public class Engine implements Runnable {
 		aiTypes = new ArrayList<Class<? extends FishAI>>();
 		aiTypes.add(CircleFish.class);
 		aiTypes.add(RandomFish.class);
+		aiTypes.add(BearFish.class);
 
 		flipStates();
 		generateFood(foodCount);

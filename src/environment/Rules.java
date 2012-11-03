@@ -9,7 +9,7 @@ public class Rules {
 	
 	public static final double TIME_DECAY = .05;
 	public static final double SPEED_DECAY = .1;
-	public static final double SIZE_DECAY = .0003;
+	public static final double SIZE_DECAY = .001;
 	
 	public static final double MAX_NUTRIENTS = startingNutrients;
 	public static final double MAX_SPEED = 5; 
