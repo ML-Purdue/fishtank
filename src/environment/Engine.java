@@ -41,8 +41,9 @@ public class Engine implements Runnable {
 		reproducers = new ArrayList<Fish>();
 		fishColors = new Hashtable<Integer, Color>();
 		aiTypes = new ArrayList<Class<? extends FishAI>>();
-		aiTypes.add(BearFish.class);
 		//aiTypes.add(RandomFish.class);
+		aiTypes.add(MouseFish.class);
+		aiTypes.add(BearFish.class);
 		//aiTypes.add(CircleFish.class);
 		this.visualizer = visualizer;
 
@@ -241,7 +242,8 @@ public class Engine implements Runnable {
     		numFish += ai.myFish.size();
     	}
     	if (numFish < Rules.minFish) {
-    		roundsUnderQuota++;
+    		// TODO fix up the spawning code to only spawn 1 group per AI type
+    		//roundsUnderQuota++;
     	} else {
     		roundsUnderQuota = 0;
     	}
@@ -349,7 +351,7 @@ public class Engine implements Runnable {
         long numStates = 0;
 
         //Add an initial fish
-        add();
+        spawnRequest = aiTypes.size();
 
         while(true) {
             iter_time = System.nanoTime();
