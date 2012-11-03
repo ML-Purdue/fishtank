@@ -1,7 +1,7 @@
 package environment;
 
 public class Rules {
-	public static final int maxSpeed = 5;
+	public static final int maxSpeed = 20;
 	public static final int tankWidth = 1024;
 	public static final int tankHeight = 1024;
 	public static final int minFish = 15;
@@ -23,6 +23,6 @@ public class Rules {
 	
 	public static double maxSpeed(FishState fs) {
 		// TODO: make this depend of fish size
-		return MAX_SPEED * (1 - Math.tanh((2 * fs.getNutrients()) / MAX_NUTRIENTS));
+		return MAX_SPEED - ((MAX_SPEED - 1) * Math.tanh((2 * fs.getNutrients()) / MAX_NUTRIENTS));
 	}
 }
