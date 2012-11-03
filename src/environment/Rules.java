@@ -22,7 +22,7 @@ public class Rules {
 	}
 	
 	public static double maxSpeed(FishState fs) {
-		// TODO: make this depend of fish size
+		//lim(nut -> 0) = MAX_SPEED, lim(nut -> MAX_NUTRIENTS) = 1
 		return MAX_SPEED - ((MAX_SPEED - 1) * Math.tanh((2 * fs.getNutrients()) / MAX_NUTRIENTS));
 	}
 }
