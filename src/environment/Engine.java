@@ -110,7 +110,7 @@ public class Engine implements Runnable {
 					}
 
 					double speed = requested_fs.getSpeed();
-					speed = speed > Rules.maxSpeed(old_fs) ? Rules.maxSpeed(old_fs) : speed < 0 ? 0 : speed;
+					speed = speed > Rules.maxSpeed(old_fs) ? Rules.maxSpeed(old_fs) : speed < 0 ? 0 : speed;//clamp
 					double x = pos.x + speed * dir.x;
 					double y = pos.y + speed * dir.y;
 
