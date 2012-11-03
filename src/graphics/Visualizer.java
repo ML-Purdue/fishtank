@@ -162,6 +162,8 @@ public class Visualizer extends JFrame implements Runnable, MouseMotionListener 
                     fishtank.add();
             } else if (input.equals("print")) {
             	fishtank.printState();
+            } else if (input.equals("hyperspeed")) {
+            	fishtank.toggleHyperspeed();
             }
         }
     }

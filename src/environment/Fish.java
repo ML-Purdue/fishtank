@@ -9,6 +9,7 @@ public class Fish {
 	public final int id;
 	public static int max_id;
 	protected FishAI controller;
+	private Engine engine;
 	
 	public enum FishCode {
 		OK,
@@ -25,10 +26,11 @@ public class Fish {
 	/* the usual methods */
 
 	// constructor
-	public Fish(FishAI controller) {
+	public Fish(FishAI controller, Engine engine) {
 		this.controller = controller;
 		id = ++max_id;
 		requested_state = new FishState(id);
+		this.engine = engine;
 	}
 
 	/* fish action methods */
@@ -68,7 +70,7 @@ public class Fish {
 
 	// reproduce the fish
 	public FishCode reproduce() {
-		controller.engine.requestRepro(this);
+		engine.requestRepro(this);
 		return FishCode.OK;
 	}
 
