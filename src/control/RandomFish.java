@@ -34,19 +34,14 @@ public class RandomFish extends FishAI {
 					continue;
 				}
 				if (i == 10) {
-					int directionX, directionY;
+					int direction;
 					if (Math.random() > .5)
-						directionX = 1;
+						direction = 1;
 					else
-						directionX = -1;
-					if (Math.random() > .5)
-						directionY = -1;
-					else
-						directionY = 1;
+						direction = -1;
 					f.setSpeed(Math.random() * 5);
-					f.setRudderDirection(Math.toDegrees(Math.atan2(
-							Math.random() * directionY, Math.random()
-									* directionX)));
+					// TODO
+					// f.setRudderDirection(fs.getRudderDegrees()+Math.random()*45*direction);
 					i = 0;
 				} else
 					i++;
@@ -76,7 +71,6 @@ public class RandomFish extends FishAI {
 					up = true;
 				}
 			}
-
 		}
 
 	}
