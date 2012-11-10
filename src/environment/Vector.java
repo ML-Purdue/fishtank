@@ -46,6 +46,10 @@ public class Vector {
     	if (scalar == 0) return new Vector();
     	else return new Vector(x / scalar, y / scalar);
     }
+    
+    public Vector negative() {
+    	return new Vector(-x, -y);
+    }
 
     public double dot(Vector other) {
         return this.x*other.x + this.y*other.y;

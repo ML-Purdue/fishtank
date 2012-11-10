@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import environment.Engine;
 import environment.Fish;
 import environment.FishState;
+import environment.Rules;
 import environment.WorldState;
 
 public class MouseFish extends FishAI {
@@ -23,7 +24,7 @@ public class MouseFish extends FishAI {
 		for (Fish f : myFish) {
 			FishState fs = current.getState(f.id);
 			f.setRudderDirection(current.mousePosition.x - fs.getPosition().x, current.mousePosition.y - fs.getPosition().y);
-			f.setSpeed(current.mousePosition.minus(fs.getPosition()).length() / 100);
+			f.setSpeed(Rules.MAX_SPEED * current.mousePosition.minus(fs.getPosition()).length() / 100);
 		}
 
 		// Set the speed for the next round

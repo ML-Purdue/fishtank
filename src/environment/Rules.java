@@ -4,11 +4,11 @@ public class Rules {
 	public static final int tankWidth = 1024;
 	public static final int tankHeight = 1024;
 	public static final int minFish = 15;
-	public static final double startingNutrients = 2000.0;
+	public static final double startingNutrients = 200.0;
 	
 	public static final double TIME_DECAY = .05;
-	public static final double SPEED_DECAY = .1;
-	public static final double SIZE_DECAY = .001;
+	public static final double SPEED_DECAY = .0001;
+	public static final double SIZE_DECAY = .01;
 	
 	public static final double MAX_NUTRIENTS = startingNutrients;
 	public static final double MAX_SPEED = 20; 

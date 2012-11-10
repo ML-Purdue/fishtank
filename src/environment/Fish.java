@@ -29,7 +29,7 @@ public class Fish {
 	public Fish(FishAI controller, Engine engine) {
 		this.controller = controller;
 		id = ++max_id;
-		requested_state = new FishState(id);
+		requested_state = new FishState(id, controller.controller_id);
 		this.engine = engine;
 	}
 
