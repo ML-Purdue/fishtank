@@ -4,6 +4,7 @@ import graphics.Visualizer;
 
 import java.awt.Color;
 import java.lang.reflect.InvocationTargetException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Random;
@@ -20,6 +21,7 @@ public class Engine implements Runnable {
 	private Object stateLock;
 	private ArrayList<FishAI> controllers;
 	private Hashtable<Integer, Thread> aiThreads;
+	private ArrayList<AIStats> aiStats;
 	private ArrayList<Fish> reproducers;
 	private Random rng;
 	private int roundsUnderQuota = 0;
@@ -37,6 +39,7 @@ public class Engine implements Runnable {
 		stateLock = new Object();
 		controllers = new ArrayList<FishAI>();
 		aiThreads = new Hashtable<Integer, Thread>();
+		aiStats = new ArrayList<AIStats>();
 		rng = new Random();
 		reproducers = new ArrayList<Fish>();
 		fishColors = new Hashtable<Integer, Color>();
@@ -58,6 +61,29 @@ public class Engine implements Runnable {
 					System.out.println("Fish " + f.id);
 				}
 			}
+		}
+	}
+	
+	public void printFinalStats() {
+		DecimalFormat df = new DecimalFormat("#.##");
+		System.out.println("Simulation complete!");
+		System.out.println("Ran for " + backState.seqID + " iterations.");
+		System.out.println("Total " + aiStats.size() + " controllers spawned.");
+		for (AIStats st : aiStats) {
+			System.out.println("Controller " + st.controller_id + ", type " + st.name);
+			if (st.deathTick == 0) {
+				st.deathTick = backState.seqID;
+			}
+			long lifespan = st.deathTick - st.birthTick;
+			if (lifespan <= 0) {
+				lifespan = 1;
+			}
+			System.out.println("\tBorn tick: " + st.birthTick);
+			System.out.println("\tLifespan: " + lifespan);
+			System.out.println("\tAvg fish: " + df.format(st.avgFish / lifespan));
+			System.out.println("\tMax fish: " + st.maxFish);
+			System.out.println("\tAvg nuts: " + df.format(st.avgNutrients / lifespan));
+			System.out.println("\tMax nuts: " + df.format(st.maxNutrients));
 		}
 	}
 	
@@ -92,6 +118,11 @@ public class Engine implements Runnable {
 	
 	public Color getColor(int fish_id) {
 		return fishColors.get(fish_id);
+	}
+	
+	public void registerDeath(FishAI ai) {
+		AIStats st = aiStats.get(ai.controller_id);
+		st.deathTick = st.deathTick == 0 ? backState.seqID : st.deathTick;
 	}
 	
 	protected void requestRepro (Fish f) {
@@ -273,6 +304,8 @@ public class Engine implements Runnable {
     					fishColors.put(f.id, ai.color);
     					backState.fishStates.put(f.id, fs);
     				}
+    				
+    				aiStats.add(new AIStats(backState.seqID, ai.getClass().getName(), ai.controller_id));
 
     				// Start the AI
     				controllers.add(ai);
@@ -317,6 +350,7 @@ public class Engine implements Runnable {
     	
     	double maxNut = 0;
     	for (FishAI ai : controllers) {
+    		AIStats st = aiStats.get(ai.controller_id);
     		double nutSum = 0;
     		synchronized(ai.myFish) {
     			for (Fish f : ai.myFish) {
@@ -325,9 +359,15 @@ public class Engine implements Runnable {
     					nutSum += fs.getNutrients();
     				}
     			}
+    			st.avgFish += ai.myFish.size();
+        		if (ai.myFish.size() > st.maxFish) st.maxFish = ai.myFish.size();
     		}
-    		if (nutSum > maxNut)
+    		if (nutSum > maxNut) {
     			maxNut = nutSum;
+    		}
+    		
+    		st.avgNutrients += nutSum;
+    		if (nutSum > st.maxNutrients) st.maxNutrients = nutSum;
     	}
     	backState.maxNutrients = maxNut;
     	
