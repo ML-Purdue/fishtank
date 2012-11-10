@@ -9,6 +9,7 @@ public class Fish {
 	public final int id;
 	public static int max_id;
 	protected FishAI controller;
+	private Engine engine;
 	
 	public enum FishCode {
 		OK,
@@ -25,10 +26,11 @@ public class Fish {
 	/* the usual methods */
 
 	// constructor
-	public Fish(FishAI controller) {
+	public Fish(FishAI controller, Engine engine) {
 		this.controller = controller;
 		id = ++max_id;
-		requested_state = new FishState(id);
+		requested_state = new FishState(id, controller.controller_id);
+		this.engine = engine;
 	}
 
 	/* fish action methods */
@@ -40,6 +42,13 @@ public class Fish {
 			requested_state.heading = direction;
 		}
 		return FishCode.OK;
+	}
+	
+	public FishCode setRudderDirection(Vector v) {
+		synchronized(requested_state) {
+			requested_state.heading = v.normalize();
+			return FishCode.OK;
+		}
 	}
 
 	// set rudder direction using the given two-dimensional vector
@@ -61,7 +70,7 @@ public class Fish {
 
 	// reproduce the fish
 	public FishCode reproduce() {
-		controller.engine.requestRepro(this);
+		engine.requestRepro(this);
 		return FishCode.OK;
 	}
 

@@ -17,6 +17,10 @@ public class Vector {
     	this(0, 0);
     }
     
+    public Vector clone() {
+    	return new Vector(x, y);
+    }
+    
     public double length() {
     	return Math.sqrt(x*x + y*y);
     }
@@ -41,6 +45,10 @@ public class Vector {
     public Vector divide(double scalar) {
     	if (scalar == 0) return new Vector();
     	else return new Vector(x / scalar, y / scalar);
+    }
+    
+    public Vector negative() {
+    	return new Vector(-x, -y);
     }
 
     public double dot(Vector other) {

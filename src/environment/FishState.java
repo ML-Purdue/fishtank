@@ -11,19 +11,21 @@ public class FishState {
 	protected double nutrients;
 	protected boolean alive;
 	public final int fish_id;
+	public final int controller_id;
 	
-	public FishState(int fish_id) {
+	public FishState(int fish_id, int controller_id) {
 		this.position = new Vector(0, 0);
 		this.heading = new Vector(1, 0);
 		this.speed = 0;
 		this.nutrients = 1000;
 		this.alive = true;
 		this.fish_id = fish_id;
+		this.controller_id = controller_id;
 	}
 	
 	// Copy a fish exactly, keeping the same fish id (for state changes).
 	public FishState clone() {
-		FishState fs = new FishState(fish_id);
+		FishState fs = new FishState(fish_id, controller_id);
 		fs.position = position;
 		fs.heading = heading;
 		fs.speed = speed;
@@ -34,7 +36,7 @@ public class FishState {
 
 	// Copy a fish but use a new id (for reproduction).
 	public FishState copy(int fish_id) {
-		FishState fs = new FishState(fish_id);
+		FishState fs = new FishState(fish_id, controller_id);
 		fs.position = position;
 		fs.heading = heading;
 		fs.speed = speed;

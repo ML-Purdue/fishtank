@@ -2,52 +2,39 @@ package graphics;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.util.Scanner;
 
-import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 
 import environment.Engine;
-import environment.Fish;
 import environment.FishState;
+import environment.Food;
 import environment.Rules;
-import environment.WorldState;
 import environment.Vector;
+import environment.WorldState;
 
 public class Visualizer extends JFrame implements Runnable, MouseMotionListener {
-    private BufferedImage buffer;
+	private static final long serialVersionUID = -6856794708211750050L;
+	private BufferedImage buffer;
     private Graphics2D bufferGraphics;
     private static Engine fishtank;
     private Thread engineThread;
     private WorldState state;
-    private int width, height;  // XXX this should not be defined here
-    private BufferedImage fishImage;
-    private Vector mousePosition;
+    public Vector mousePosition;
     private Color background = new Color(134, 177, 225);
 
     public Visualizer() {
         //Set up the fishtank
-    	fishtank = new Engine();
-        width = Rules.xWidth;
-        height = Rules.yWidth;
-        buffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+    	fishtank = new Engine(this);
+        buffer = new BufferedImage(Rules.tankWidth, Rules.tankHeight, BufferedImage.TYPE_INT_RGB);
         bufferGraphics = (Graphics2D)buffer.getGraphics();
         bufferGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         
         engineThread = new Thread(fishtank);
-        try {
-			fishImage = ImageIO.read(new File("fish.png"));
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.exit(0);
-		}
         
         mousePosition = new Vector();
         this.addMouseMotionListener(this);
@@ -75,22 +62,10 @@ public class Visualizer extends JFrame implements Runnable, MouseMotionListener 
             nextState = state.seqID;
         }
     }
-
-    //Push the visualization of the state to the window
-    public void paint(Graphics g) {
-    	//Draw the tank
-        bufferGraphics.setColor(background);
-        bufferGraphics.fillRect(0, 0, buffer.getWidth(), buffer.getHeight());
-   
-        //Draw the fish
-
-        // TODO draw fish features like rudder
-        FishState fishUnderMouse = null;
-        int fumID = 0;
-        if (state == null) {
-                return;
-        }
-        for (FishState fs : state.getFish()) {
+    
+    private FishState drawFish() {
+    	FishState fishUnderMouse = null;
+    	for (FishState fs : state.getFish()) {
             if(fs.isAlive()){
                 Vector pos = fs.getPosition();
                 // Draw tail and outline according to speed
@@ -110,30 +85,56 @@ public class Visualizer extends JFrame implements Runnable, MouseMotionListener 
             }
             if (fs.getPosition().minus(mousePosition).length() < fs.getRadius()) {
             	fishUnderMouse = fs;
-            	fumID = fs.fish_id;
             }
         }
-        
-        // tooltip
-        int tooltipHeight = 20, tooltipBottomMargin = 10;
+    	return fishUnderMouse;
+    }
+    
+    private void drawTooltip(FishState fishUnderMouse) {
+    	int tooltipHeight = 20, tooltipBottomMargin = 10;
         bufferGraphics.setColor(Color.WHITE);
         bufferGraphics.fillRect(0, buffer.getHeight() - tooltipHeight, buffer.getWidth(), tooltipHeight);
         bufferGraphics.setColor(Color.BLACK);
         if (fishUnderMouse != null) {
         	bufferGraphics.drawString(String.format("Frame %d ID %d, Nut %.2f, Change %.2f, Speed %.2f, Dir %s",
-	        			state.seqID, fumID,
+	        			state.seqID, fishUnderMouse.fish_id,
 	        			fishUnderMouse.getNutrients(), Rules.decay(fishUnderMouse),
 	        			fishUnderMouse.getSpeed(), fishUnderMouse.getRudderVector()),
         			5, buffer.getHeight() - tooltipBottomMargin);
         } else {
         	bufferGraphics.drawString(String.format("Frame %d, Fish %d, Controllers %d, Max fish %d, Max nut %.2f",
-        				state.seqID, fishtank.numFish(),
-        				fishtank.numControllers(),
-        				fishtank.maxFish(), fishtank.maxNutrients()),
+        				state.seqID, state.getNumFish(),
+        				state.getNumControllers(),
+        				state.getMaxFish(), state.getMaxNutrients()),
         			5, buffer.getHeight() - tooltipBottomMargin);
         }
-           
-        // TODO Draw the plants
+    }
+    
+    private void drawFood() {
+    	for (Food food : state.getFood()) {
+        	bufferGraphics.setColor(Color.GREEN);
+        	bufferGraphics.fillOval((int)(food.position.x - food.getRadius()), (int)(food.position.y - food.getRadius()), (int)(2 * food.getRadius()), (int)(2 * food.getRadius()));
+        }
+    }
+
+    //Push the visualization of the state to the window
+    public void paint(Graphics g) {
+    	//Draw the tank
+        bufferGraphics.setColor(background);
+        bufferGraphics.fillRect(0, 0, buffer.getWidth(), buffer.getHeight());
+   
+        //Draw the fish
+
+        FishState fishUnderMouse = null;
+        if (state == null) {
+                return;
+        }
+        
+        fishUnderMouse = drawFish();
+        
+        drawFood();
+
+        drawTooltip(fishUnderMouse);
 
         g.drawImage(buffer, 0, 0, this);
 
@@ -159,6 +160,10 @@ public class Visualizer extends JFrame implements Runnable, MouseMotionListener 
                 input = in.nextLine();
                 for(int i = 0; i < Integer.parseInt(input); i++)
                     fishtank.add();
+            } else if (input.equals("print")) {
+            	fishtank.printState();
+            } else if (input.equals("hyperspeed")) {
+            	fishtank.toggleHyperspeed();
             }
         }
     }
