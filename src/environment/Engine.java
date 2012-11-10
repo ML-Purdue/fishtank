@@ -241,7 +241,7 @@ public class Engine implements Runnable {
     	synchronized(reproducers){
     		for (Fish parent : reproducers) {
     			synchronized(parent.controller.myFish) {
-    				System.out.println("Reproducing fish " + parent.id);
+    				//System.out.println("Reproducing fish " + parent.id);
     				FishState ps = backState.getState(parent.id);
     				if (ps == null || !ps.isAlive()) {
     					continue;
