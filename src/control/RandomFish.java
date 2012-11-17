@@ -5,61 +5,46 @@ import java.util.ArrayList;
 import environment.Engine;
 import environment.Fish;
 import environment.FishState;
+import environment.Rules;
+import environment.Vector;
 
 public class RandomFish extends FishAI {
 	int speed = 0;
 	boolean up = true;
-	private int i;
+	int iterate;
 
 	public RandomFish(Engine engine) {
 		super(engine, 3);
-		i = 0;
-		// centers = new HashMap<Fish, Vector>();
+		iterate = 0;
 	}
 
-	@Override
 	public void iterate() {
+		ArrayList<Fish> removeList = new ArrayList<Fish>();
 		for (Fish f : myFish) {
 			FishState fs = current.getState(f.id);
-			if (i == 10) {
-				int directionX, directionY;
-				if (Math.random() > .5)
-					directionX = 1;
-				else
-					directionX = -1;
-				if (Math.random() > .5)
-					directionY = -1;
-				else
-					directionY = 1;
-				f.setSpeed(Math.random() * 5);
-				f.setRudderDirection(Math.toDegrees(Math.atan2(
-						Math.random() * directionY, Math.random()
-						* directionX)));
-				i = 0;
-			} else
-				i++;
+			int directionX, directionY;
+			if (Math.random() > .5)
+				directionX = 1;
+			else
+				directionX = -1;
+			if (Math.random() > .5)
+				directionY = -1;
+			else
+				directionY = 1;
+			if (iterate == 10) {
+				f.setRudderDirection(Math.random() * directionX, Math.random()
+						* directionY);
+				f.setSpeed(Math.random() * Rules.MAX_SPEED);
 
-			// Reproduce
-			if (fs.getNutrients() > 800) {
-
-				System.out.println("Fish " + f.id
-						+ " requesting reproduction");
+			}
+			if (fs.getNutrients() > Rules.MAX_NUTRIENTS-10) {
+				System.out.println("Fish " + f.id + " requesting reproduction");
 				f.reproduce();
 			}
 		}
-
-		// Set the speed for the next round
-		if (up) {
-			speed++;
-			if (speed > 10) {
-				up = false;
-			}
-		} else {
-			speed--;
-			if (speed < -5) {
-				up = true;
-			}
-		}
+		if (iterate == 10)
+			iterate = -1;
+		iterate++;
 
 	}
 

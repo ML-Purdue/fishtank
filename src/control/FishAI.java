@@ -55,11 +55,12 @@ public abstract class FishAI implements Runnable {
     		}
     	}
     	System.out.println("Fish " + controller_id + " empty, ending execution");
+    	engine.registerDeath(this);
     }
     
     protected abstract void iterate();
     
-    private int liveFish() {
+    public int liveFish() {
     	WorldState st = engine.getState(firstFrame);
     	int numFish = 0;
     	synchronized(myFish) {

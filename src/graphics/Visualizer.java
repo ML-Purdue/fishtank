@@ -3,8 +3,12 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
 import java.util.Scanner;
 
@@ -17,7 +21,7 @@ import environment.Rules;
 import environment.Vector;
 import environment.WorldState;
 
-public class Visualizer extends JFrame implements Runnable, MouseMotionListener {
+public class Visualizer extends JFrame implements Runnable, MouseMotionListener, WindowListener {
 	private static final long serialVersionUID = -6856794708211750050L;
 	private BufferedImage buffer;
     private Graphics2D bufferGraphics;
@@ -38,6 +42,7 @@ public class Visualizer extends JFrame implements Runnable, MouseMotionListener 
         
         mousePosition = new Vector();
         this.addMouseMotionListener(this);
+        this.addWindowListener(this);
     }
 
     /* Helper function to print the usage statement */
@@ -139,6 +144,10 @@ public class Visualizer extends JFrame implements Runnable, MouseMotionListener 
         g.drawImage(buffer, 0, 0, this);
 
     }
+    
+    public static void finishUp() {
+    	fishtank.printFinalStats();
+    }
 
     public static void main(String[] argv) {
         //Parse command-line args
@@ -155,6 +164,7 @@ public class Visualizer extends JFrame implements Runnable, MouseMotionListener 
         while(visThread.isAlive()) {
             String input = in.nextLine();
             if(input.equals("exit")) {
+            	finishUp();
                 System.exit(0);
             } else if (input.equals("spawn")) {
                 input = in.nextLine();
@@ -171,8 +181,32 @@ public class Visualizer extends JFrame implements Runnable, MouseMotionListener 
 	public void mouseMoved(MouseEvent arg0) {
 		mousePosition = new Vector(arg0.getX(), arg0.getY());
 	}
+	
+	public void windowClosing(WindowEvent e) {
+		finishUp();
+	}
 
 	public void mouseDragged(MouseEvent arg0) {
+	}
+
+	public void windowActivated(WindowEvent e) {
+	}
+
+	public void windowClosed(WindowEvent e) {
+	}
+
+	
+
+	public void windowDeactivated(WindowEvent e) {
+	}
+
+	public void windowDeiconified(WindowEvent e) {
+	}
+
+	public void windowIconified(WindowEvent e) {
+	}
+
+	public void windowOpened(WindowEvent e) {
 	}
 }
 
