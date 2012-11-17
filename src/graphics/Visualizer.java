@@ -122,6 +122,7 @@ public class Visualizer extends JFrame implements Runnable, MouseMotionListener,
         }
     	
     	bufferGraphics.setColor(Color.GREEN);
+    	/*
     	for (int y = 0; y < Rules.tankHeight; y++) {
     		for (int x = 0; x < Rules.tankWidth; x++) {
     			if (fishtank.plants[x][y] != null) {
@@ -129,6 +130,7 @@ public class Visualizer extends JFrame implements Runnable, MouseMotionListener,
     			}
     		}
     	}
+    	*/
     }
 
     //Push the visualization of the state to the window

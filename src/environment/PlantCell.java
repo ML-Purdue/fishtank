@@ -6,27 +6,29 @@ import java.util.ArrayList;
 public class PlantCell {
 	protected Point pos;
 	protected double nutrients;
-	protected static PlantCell cells[][];
+	protected static PlantCell cells[][] = new PlantCell[Rules.tankWidth][Rules.tankHeight];
 	public static final double threshold = 10;
 	
 	public PlantCell (int x, int y) {
 		this.pos = new Point(x, y);
 		this.nutrients = 0;
+		cells[pos.x][pos.y] = this;
 	}
 	
-	protected void grow() {
-		if (nutrients < threshold) return;
+	protected PlantCell grow() {
+		if (nutrients < threshold) return null;
 		
 		// Check that we can reproduce
 		ArrayList<Point> targets = getNeighbors();
-		if (targets.size() <= 0) return;
+		if (targets.size() <= 0) return null;
 		
 		// Choose a point to grow to
 		// TODO: come up with a clever algorithm for this
-		Point bud = targets.get(Engine.rng.nextInt(targets.size()));
+		Point p = targets.get(Engine.rng.nextInt(targets.size()));
 		
 		// Create a cell there
-		cells[bud.x][bud.y] = new PlantCell(bud.x, bud.y) ;
+		PlantCell bud = new PlantCell(p.x, p.y) ;
+		return bud;
 	}
 	
 	private ArrayList<Point> getNeighbors() {

@@ -33,7 +33,7 @@ public class Engine implements Runnable {
 	private Hashtable<Integer, Color> fishColors;
 	private boolean hyperspeed = false;
 	private Visualizer visualizer;
-	private PlantCell plants[][];
+	private ArrayList<PlantCell> plants;
 
 	public Engine(Visualizer visualizer) {
 		backState = new WorldState(0);
@@ -58,8 +58,8 @@ public class Engine implements Runnable {
 	}
 	
 	private void initPlants() {
-		plants = new PlantCell[Rules.tankWidth][Rules.tankHeight];
-		plants[512][512] = new PlantCell(512, 512);
+		plants = new ArrayList<PlantCell>();
+		plants.add(new PlantCell(512,512));
 	}
 	
 	public void printState() {
@@ -351,6 +351,23 @@ public class Engine implements Runnable {
     	}
     }
     
+    private void runPlants() {
+    	ArrayList<PlantCell> newCells = new ArrayList<PlantCell>();
+    	for (PlantCell p : plants) {
+    		p.nutrients += 2;
+    		p.nutrients = p.nutrients > p.threshold ? p.threshold : p.nutrients;
+    		PlantCell bud = p.grow();
+    		if (bud != null) newCells.add(bud);
+    	}
+    	for (PlantCell p : newCells) {
+    		plants.add(p);
+    	}
+    	
+    	for (PlantCell p : plants) {
+    		backState.food.add(new Food(new Vector(p.pos.x, p.pos.y), p.nutrients));
+    	}
+    }
+    
     /*
      * Clean up dead objects, etc.
      */
@@ -436,6 +453,8 @@ public class Engine implements Runnable {
 			decayFish();
 
 			spawnFish();
+			
+			runPlants();
 			
 			cleanHouse();
 			
