@@ -120,6 +120,15 @@ public class Visualizer extends JFrame implements Runnable, MouseMotionListener,
         	bufferGraphics.setColor(Color.GREEN);
         	bufferGraphics.fillOval((int)(food.position.x - food.getRadius()), (int)(food.position.y - food.getRadius()), (int)(2 * food.getRadius()), (int)(2 * food.getRadius()));
         }
+    	
+    	bufferGraphics.setColor(Color.GREEN);
+    	for (int y = 0; y < Rules.tankHeight; y++) {
+    		for (int x = 0; x < Rules.tankWidth; x++) {
+    			if (fishtank.plants[x][y] != null) {
+    				bufferGraphics.drawRect(x, y, 1, 1);
+    			}
+    		}
+    	}
     }
 
     //Push the visualization of the state to the window
