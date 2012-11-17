@@ -23,7 +23,7 @@ public class Engine implements Runnable {
 	private Hashtable<Integer, Thread> aiThreads;
 	private ArrayList<AIStats> aiStats;
 	private ArrayList<Fish> reproducers;
-	private Random rng;
+	public static Random rng = new Random();
 	private int roundsUnderQuota = 0;
 	private ArrayList<Class<? extends FishAI>> aiTypes;
 	private int typeIndex = 0;
@@ -33,16 +33,19 @@ public class Engine implements Runnable {
 	private Hashtable<Integer, Color> fishColors;
 	private boolean hyperspeed = false;
 	private Visualizer visualizer;
+	private PlantCell plants[][];
 
 	public Engine(Visualizer visualizer) {
 		backState = new WorldState(0);
 		stateLock = new Object();
+		reproducers = new ArrayList<Fish>();
+		fishColors = new Hashtable<Integer, Color>();
+		initPlants();
+
 		controllers = new ArrayList<FishAI>();
 		aiThreads = new Hashtable<Integer, Thread>();
 		aiStats = new ArrayList<AIStats>();
-		rng = new Random();
-		reproducers = new ArrayList<Fish>();
-		fishColors = new Hashtable<Integer, Color>();
+		
 		aiTypes = new ArrayList<Class<? extends FishAI>>();
 		//aiTypes.add(RandomFish.class);
 		//aiTypes.add(MouseFish.class);
@@ -52,6 +55,11 @@ public class Engine implements Runnable {
 		this.visualizer = visualizer;
 
 		flipStates();
+	}
+	
+	private void initPlants() {
+		plants = new PlantCell[Rules.tankWidth][Rules.tankHeight];
+		plants[512][512] = new PlantCell(512, 512);
 	}
 	
 	public void printState() {
