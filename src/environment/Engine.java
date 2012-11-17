@@ -29,7 +29,7 @@ public class Engine implements Runnable {
 	private int typeIndex = 0;
 	private int spawnRequest = 0;
 	private int numFish = 0;
-	private int foodRate = 30;
+	private int foodRate = 10;
 	private Hashtable<Integer, Color> fishColors;
 	private boolean hyperspeed = false;
 	private Visualizer visualizer;
@@ -44,8 +44,9 @@ public class Engine implements Runnable {
 		reproducers = new ArrayList<Fish>();
 		fishColors = new Hashtable<Integer, Color>();
 		aiTypes = new ArrayList<Class<? extends FishAI>>();
-		aiTypes.add(RandomFish.class);
-		aiTypes.add(MouseFish.class);
+		//aiTypes.add(RandomFish.class);
+		//aiTypes.add(MouseFish.class);
+		aiTypes.add(BearFish.class);
 		aiTypes.add(BearFish.class);
 		//aiTypes.add(CircleFish.class);
 		this.visualizer = visualizer;
