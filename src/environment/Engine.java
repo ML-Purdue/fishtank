@@ -29,7 +29,7 @@ public class Engine implements Runnable {
 	private int typeIndex = 0;
 	private int spawnRequest = 0;
 	private int numFish = 0;
-	private int foodCount = 10;
+	private int foodRate = 10;
 	private Hashtable<Integer, Color> fishColors;
 	private boolean hyperspeed = false;
 	private Visualizer visualizer;
@@ -48,16 +48,10 @@ public class Engine implements Runnable {
 		//aiTypes.add(MouseFish.class);
 		aiTypes.add(BearFish.class);
 		aiTypes.add(BearFish.class);
-		aiTypes.add(BearFish.class);
-		aiTypes.add(BearFish.class);
-		aiTypes.add(BearFish.class);
-		aiTypes.add(BearFish.class);
-		aiTypes.add(BearFish.class);
 		//aiTypes.add(CircleFish.class);
 		this.visualizer = visualizer;
 
 		flipStates();
-		generateFood(foodCount);
 	}
 	
 	public void printState() {
@@ -153,13 +147,6 @@ public class Engine implements Runnable {
     	}
     }
 
-	
-	private void generateFood(int n) {
-		for (int i = 0; i < n; i++) {
-			backState.food.add(new Food(new Vector(rng.nextDouble() * Rules.tankWidth, rng.nextDouble() * Rules.tankHeight), 100));
-		}
-	}
-
 	private void moveFish() {
 		for (FishAI ai : controllers) {
 			synchronized(ai.myFish) {
@@ -202,12 +189,15 @@ public class Engine implements Runnable {
 	
 	private void eatFood() {
 		for (FishState fishState : backState.fishStates.values()) {
-			for (Food food : backState.food) {
+			for (int i = 0; i < backState.food.size();) {
+				Food food = backState.food.get(i);
 				double dist = Math.sqrt(Math.pow((fishState.position.x - food.position.x), 2)
 						+ Math.pow((fishState.position.y - food.position.y), 2));
 				if(dist < fishState.getRadius() + food.getRadius()){
 					fishState.nutrients += (food.nutrients * 0.8);
-					food.position = new Vector(rng.nextDouble() * Rules.tankWidth, rng.nextDouble() * Rules.tankHeight);
+					backState.food.remove(food);
+				} else {
+					i++;
 				}
 			}
 		}
@@ -425,6 +415,10 @@ public class Engine implements Runnable {
 			backState.mousePosition = visualizer.mousePosition.clone();
 
 			// Calculate the next state from frontState into the backState
+			if (backState.seqID % foodRate == 0) {
+				backState.food.add(new Food(new Vector(rng.nextDouble() * Rules.tankWidth, rng.nextDouble() * Rules.tankHeight), 100));
+			}
+			
 			moveFish();
 			
 			eatFood();
