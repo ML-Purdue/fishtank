@@ -75,7 +75,7 @@ public class Visualizer extends JFrame implements Runnable, MouseMotionListener,
                 Vector pos = fs.getPosition();
                 // Draw tail and outline according to speed
                 int tailBrightness = (int)((double)fs.getSpeed() / Rules.MAX_SPEED * 255);
-                bufferGraphics.setColor(new Color(tailBrightness, tailBrightness, tailBrightness));
+                bufferGraphics.setColor(Color.BLACK);
                 bufferGraphics.drawLine((int)pos.x, (int)pos.y,
                 		(int)(pos.x - fs.getRudderVector().x * fs.getRadius() * 2),
                 		(int)(pos.y - fs.getRudderVector().y * fs.getRadius() * 2));

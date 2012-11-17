@@ -38,7 +38,7 @@ public class RandomFish extends FishAI {
 
 			}
 			if (fs.getNutrients() > Rules.MAX_NUTRIENTS-10) {
-				System.out.println("Fish " + f.id + " requesting reproduction");
+				//System.out.println("Fish " + f.id + " requesting reproduction");
 				f.reproduce();
 			}
 		}
