@@ -37,7 +37,7 @@ public class CircleFish extends FishAI {
 
 			// Reproduce
 			if (fs.getNutrients() > 800) {
-				System.out.println("Fish " + f.id + " requesting reproduction");
+				//System.out.println("Fish " + f.id + " requesting reproduction");
 				f.reproduce();
 			}
 		}

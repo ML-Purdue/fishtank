@@ -66,6 +66,20 @@ public class Engine implements Runnable {
 		}
 	}
 	
+	public void printIntermediateStats() {
+		//DecimalFormat df = new DecimalFormat("#.##");
+		System.out.println(aiStats.size() + " " + backState.seqID);
+		for (AIStats st : aiStats) {
+			long death = st.deathTick == 0 ? backState.seqID : st.deathTick;
+			long lifespan = death - st.birthTick;
+			if (lifespan <= 0) {
+				lifespan = 1;
+			}
+			//System.out.println(st.name + " " + st.avgFish / lifespan);
+			System.out.println(st.name + " " + st.currentFish);
+		}
+	}
+	
 	public void printFinalStats() {
 		DecimalFormat df = new DecimalFormat("#.##");
 		System.out.println("Simulation complete!");
@@ -304,7 +318,7 @@ public class Engine implements Runnable {
     					backState.fishStates.put(f.id, fs);
     				}
     				
-    				aiStats.add(new AIStats(backState.seqID, ai.getClass().getName(), ai.controller_id));
+    				aiStats.add(new AIStats(backState.seqID, ai.getClass().getName()+ai.controller_id, ai.controller_id));
 
     				// Start the AI
     				controllers.add(ai);
@@ -367,6 +381,8 @@ public class Engine implements Runnable {
     		
     		st.avgNutrients += nutSum;
     		if (nutSum > st.maxNutrients) st.maxNutrients = nutSum;
+    		
+    		st.currentFish = ai.myFish.size();
     	}
     	backState.maxNutrients = maxNut;
     	
@@ -416,6 +432,9 @@ public class Engine implements Runnable {
 			cleanHouse();
 			
 			computeStats();
+			
+			if((numStates+1) % 5 == 0)
+				printIntermediateStats();
 
 			// Push backState to be the new frontState
 			flipStates();
