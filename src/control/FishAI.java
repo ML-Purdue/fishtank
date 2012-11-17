@@ -54,7 +54,7 @@ public abstract class FishAI implements Runnable {
     			iterate();
     		}
     	}
-    	System.out.println("Fish " + controller_id + " empty, ending execution");
+    	//System.out.println("Fish " + controller_id + " empty, ending execution");
     	engine.registerDeath(this);
     }
     

@@ -9,6 +9,7 @@ public class AIStats {
 	protected double avgFish = 0;
 	protected final String name;
 	protected final int controller_id;
+	protected double currentFish = 0;
 	
 	public AIStats (long birthTick, String name, int controler_id) {
 		this.birthTick = birthTick;

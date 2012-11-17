@@ -44,8 +44,14 @@ public class Engine implements Runnable {
 		reproducers = new ArrayList<Fish>();
 		fishColors = new Hashtable<Integer, Color>();
 		aiTypes = new ArrayList<Class<? extends FishAI>>();
-		aiTypes.add(RandomFish.class);
-		aiTypes.add(MouseFish.class);
+		//aiTypes.add(RandomFish.class);
+		//aiTypes.add(MouseFish.class);
+		aiTypes.add(BearFish.class);
+		aiTypes.add(BearFish.class);
+		aiTypes.add(BearFish.class);
+		aiTypes.add(BearFish.class);
+		aiTypes.add(BearFish.class);
+		aiTypes.add(BearFish.class);
 		aiTypes.add(BearFish.class);
 		//aiTypes.add(CircleFish.class);
 		this.visualizer = visualizer;
@@ -63,6 +69,20 @@ public class Engine implements Runnable {
 					System.out.println("Fish " + f.id);
 				}
 			}
+		}
+	}
+	
+	public void printIntermediateStats() {
+		//DecimalFormat df = new DecimalFormat("#.##");
+		System.out.println(aiStats.size() + " " + backState.seqID);
+		for (AIStats st : aiStats) {
+			long death = st.deathTick == 0 ? backState.seqID : st.deathTick;
+			long lifespan = death - st.birthTick;
+			if (lifespan <= 0) {
+				lifespan = 1;
+			}
+			//System.out.println(st.name + " " + st.avgFish / lifespan);
+			System.out.println(st.name + " " + st.currentFish);
 		}
 	}
 	
@@ -308,7 +328,7 @@ public class Engine implements Runnable {
     					backState.fishStates.put(f.id, fs);
     				}
     				
-    				aiStats.add(new AIStats(backState.seqID, ai.getClass().getName(), ai.controller_id));
+    				aiStats.add(new AIStats(backState.seqID, ai.getClass().getName()+ai.controller_id, ai.controller_id));
 
     				// Start the AI
     				controllers.add(ai);
@@ -371,6 +391,8 @@ public class Engine implements Runnable {
     		
     		st.avgNutrients += nutSum;
     		if (nutSum > st.maxNutrients) st.maxNutrients = nutSum;
+    		
+    		st.currentFish = ai.myFish.size();
     	}
     	backState.maxNutrients = maxNut;
     	
@@ -416,6 +438,9 @@ public class Engine implements Runnable {
 			cleanHouse();
 			
 			computeStats();
+			
+			if((numStates+1) % 5 == 0)
+				printIntermediateStats();
 
 			// Push backState to be the new frontState
 			flipStates();
