@@ -454,7 +454,7 @@ public class Engine implements Runnable {
 
 			spawnFish();
 			
-			runPlants();
+			//runPlants();
 			
 			cleanHouse();
 			
